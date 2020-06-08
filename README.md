@@ -12,11 +12,11 @@ This version of the Webkit features:
 - A theme system for loading custom styles from a configuration
 - Improved inline styling options 
 
-### XML Parser
+## XML Parser
 
 The XML parser will not replace the JSON configuration syntax, but provide an easier option for project managers to generate a site from scratch.
 
-The template syntax includes a front matter in YAML for configuring the site
+### The template syntax includes a front matter in YAML for configuring the site
 
 ```
 site:
@@ -29,9 +29,11 @@ site:
 
 Depending on the template loaded, additional template variables can be set in the frontmatter.
 
-For the Campaign template, the following variables can be set:
+### For the Campaign template, the following variables can be set
 
 ```
+<Config>
+
 menu: 
   anchor: true (displays anchor links to sections with an ID)
   links: (displays external links)
@@ -42,20 +44,31 @@ menu:
 header:
   image: https://i.redd.it/x5zojh91awfz.jpg (header image)
   social: ['url', 'twitter', 'facebook', 'linkedin', 'email'] (social links to display)
+
+</Config>
+
 ```
 
-A simple XML template looks like this:
+### A simple XML template
 
 ```
 <Webkit>
 
+<Config>
+
+My YAML frontmatter inside a code block.
+
+</Config>
+
 <Header>
 
-  ## My header title.
-  My header pargraph text
+  <Text>
+	  ## My header title.
+	  My header paragraph text
 
-  [My header link #1](url)
-  [My header link #2](url)
+	  [My header link #1](url)
+	  [My header link #2](url)
+  </Text>
 
 </Header>
 
@@ -72,11 +85,13 @@ A simple XML template looks like this:
 </Webkit>
 ```
 
-### Sandbox & Local Mode
+## Sandbox & Local Mode
 
-You can now set the Webkit to read from multiple configurations (sandbox mode) or from one single local file (local mode).
+You can set the Webkit to read from multiple configurations:
+- Sandbox mode can load multiple configurations based on the URL of the site
+- Local mode loads a single configuration file hosted on the server
 
-This mode is set in ```src/data/config.yaml```:
+### This mode is set in ```src/data/config.yaml```
 
 ```
 ---
@@ -95,13 +110,13 @@ For example, to load the configuration of topic ```13810``` from the local serve
 http://localhost:8080/13810
 ```
 
-### Templates & Themes
+## Templates & Themes
 
 There are cases where different sites need specific layouts and styling. The templates directory hosts Vue templates that can be loaded conditionnally based on the configuration.
 
-Templates require development of a Vue component hosted in the ```src/components/templates``` directory, while Themes are CSS files that can be loaded locally or remotely. 
+Templates require development of a Vue component located in the ```src/components/templates``` directory, while Themes are CSS files that can be loaded locally or remotely. 
 
-Local themes are in ```src/assets/themes``` directory.
+Local themes are located in the ```src/assets/themes``` directory.
 
 The template and theme of a site are defined in the frontmatter of the configuration. If no template or theme is specified, Webkit will default to the standard configuration.
 
