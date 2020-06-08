@@ -109,7 +109,7 @@ You can set the Webkit to Sandbox or Local mode:
 - Sandbox mode can load multiple configurations based on the URL of the site
 - Local mode loads a single configuration file hosted on the server
 
-* This mode is set in ```src/data/config.yaml``` *
+#### This mode is set in ```src/data/config.yaml```
 
 ```
 ---
