@@ -1,0 +1,6 @@
+---
+baseUrl: https://edgeryders.eu
+title: Webkit Sandbox
+mode: sandbox
+template: template.md
+theme: edgeryders.scss
