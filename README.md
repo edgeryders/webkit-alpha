@@ -35,7 +35,7 @@ site:
 
 Depending on the template loaded, additional template variables can be set in the frontmatter.
 
-### For the Campaign template, the following variables can be set
+### Example setting the Campaign template variables
 
 ````
 <Config>
@@ -56,7 +56,7 @@ header:
 
 ````
 
-### A simple XML template
+### A simple XML + Markdown template
 
 ````
 <Webkit>
@@ -109,7 +109,7 @@ You can set the Webkit to read from multiple configurations:
 - Sandbox mode can load multiple configurations based on the URL of the site
 - Local mode loads a single configuration file hosted on the server
 
-### This mode is set in ```src/data/config.yaml```
+* This mode is set in ```src/data/config.yaml``` *
 
 ```
 ---
