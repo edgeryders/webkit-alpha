@@ -18,8 +18,9 @@ The XML parser will not replace the JSON configuration syntax, but provide an ea
 
 ### The template syntax requires a front matter in YAML for configuring the site
 
-<Config>
 ````
+
+<Config>
 ```
 ---
 site:
@@ -28,8 +29,9 @@ site:
   theme: Edgeryders (CSS theme, optional)
   lang: en-US (Language, optional)
 ```
-````
 </Config>
+
+````
 
 Depending on the template loaded, additional template variables can be set in the frontmatter.
 
@@ -93,7 +95,7 @@ site:
 
     ### A subtitle
     Another text view
-    
+
    </Text>
   
 </Content>
