@@ -78,11 +78,11 @@ site:
 
   <Text>
 
-	## My header title.
-	My header paragraph text
-
-	[My header link #1](url)
-	[My header link #2](url)
+    ## My header title.
+    My header paragraph text
+   
+    [My header link #1](url)
+    [My header link #2](url)
 
   </Text>
 
