@@ -16,24 +16,29 @@ This version of the Webkit features:
 
 The XML parser will not replace the JSON configuration syntax, but provide an easier option for project managers to generate a site from scratch.
 
-### The template syntax includes a front matter in YAML for configuring the site
+### The template syntax requires a front matter in YAML for configuring the site
 
+<Config>
+````
 ```
+---
 site:
   title: Site Title
   template: Template Name (Vue template, optional)
   theme: Edgeryders (CSS theme, optional)
   lang: en-US (Language, optional)
-
 ```
+````
+</Config>
 
 Depending on the template loaded, additional template variables can be set in the frontmatter.
 
 ### For the Campaign template, the following variables can be set
 
-```
+````
 <Config>
-
+```
+---
 menu: 
   anchor: true (displays anchor links to sections with an ID)
   links: (displays external links)
@@ -44,19 +49,26 @@ menu:
 header:
   image: https://i.redd.it/x5zojh91awfz.jpg (header image)
   social: ['url', 'twitter', 'facebook', 'linkedin', 'email'] (social links to display)
-
+```
 </Config>
 
-```
+````
 
 ### A simple XML template
 
-```
+````
 <Webkit>
 
 <Config>
 
-My YAML frontmatter inside a code block.
+```
+---
+site:
+  title: Site Title
+  template: Template Name (Vue template, optional)
+  theme: Edgeryders (CSS theme, optional)
+  lang: en-US (Language, optional)
+```
 
 </Config>
 
@@ -83,7 +95,7 @@ My YAML frontmatter inside a code block.
 </Content>
 
 </Webkit>
-```
+````
 
 ## Sandbox & Local Mode
 
