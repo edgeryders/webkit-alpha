@@ -75,11 +75,13 @@ site:
 <Header>
 
   <Text>
-	  ## My header title.
-	  My header paragraph text
 
-	  [My header link #1](url)
-	  [My header link #2](url)
+	## My header title.
+	My header paragraph text
+
+	[My header link #1](url)
+	[My header link #2](url)
+
   </Text>
 
 </Header>
@@ -88,8 +90,10 @@ site:
 
   <Text> A text view with html, embedded images, embedded video </Text>
   <Text> 
-     ### A subtitle
-     Another text view
+
+    ### A subtitle
+    Another text view
+    
    </Text>
   
 </Content>
