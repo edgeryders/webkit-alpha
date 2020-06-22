@@ -1,30 +1,24 @@
 <template>
   <div id="app">
-    <Campaign v-if="activeTemplate == 'campaign'" :blocks="blocks" :config="config" />
-    <Standard v-if="activeTemplate == 'standard'" :blocks="blocks" :config="config" />
-    <Research v-if="activeTemplate == 'research'" :blocks="blocks" :config="config" />
+    <component :is="activeTemplate" :blocks="blocks" :config="config"></component>
   </div>
 </template>
 
 <script>
-var YAML = require('yamljs');
+var YAML = require("yamljs");
 
-import template from './data/template.md'
-import configuration from './data/config.yaml'
+import template from "./data/template.md";
+import configuration from "./data/config.yaml";
 
-import TextView from './components/views/Text.vue'
-import FormView from './components/views/Form.vue'
-
-import Campaign from './components/templates/Campaign.vue'
-import Standard from './components/templates/Standard.vue'
-import Research from './components/templates/Research.vue'
+import edgeryders from "./components/templates/Edgeryders.vue";
+import minimal from "./components/templates/Minimal.vue";
 
 export default {
   name: "App",
   data() {
     return {
       tags: null,
-      activeTemplate: 'standard',
+      activeTemplate: "edgeryders",
       template,
       configuration,
       title: null,
@@ -34,286 +28,266 @@ export default {
       stylesheet: null,
       data: {
         config: null,
-        blocks: null
-      }
-    }
+        blocks: null,
+      },
+    };
   },
   components: {
-    Campaign,
-    Standard,
-    Research,
-    TextView,
-    FormView
+    edgeryders,
+    minimal
   },
   methods: {
-    getNavElements(sections) {
-      var self = this;
-        var navArray = sections.map(function(el) {
-          var block = self.type(el);
-          var id = el[block]['config'] && el[block]['config']['id'];
-          if (id && block !== 'menu') {
-            return {
-              text: id,
-              url: '#' + id
-            } 
-          }
-        });
-        return navArray.filter(function (el) {
-            return el != null;
-        });
-    },
-    showAnchorMenu(menu) {
-      if (menu.config && menu.config.anchor == false) {
-        return false
-      } else {
-        return true
-      }
-    },
     getAttributes(element) {
       var attrs = element.attributes;
       var obj = {};
-      for(var i = attrs.length - 1; i >= 0; i--) {
-          var attrname = attrs[i].name;
-          var attrvalue = attrs[i].value;
-          if (attrvalue == 'true') {
-            obj[attrname] = true;
-          } else if (attrvalue == 'false') {
-            obj[attrname] = false
-          } else {
-            obj[attrname] = attrvalue
-          }
-       }
-       return obj
+      for (var i = attrs.length - 1; i >= 0; i--) {
+        var attrname = attrs[i].name;
+        var attrvalue = attrs[i].value;
+        if (attrvalue == "true") {
+          obj[attrname] = true;
+        } else if (attrvalue == "false") {
+          obj[attrname] = false;
+        } else {
+          obj[attrname] = attrvalue;
+        }
+      }
+      return obj;
     },
     createView(view, header) {
       var name = view.nodeName.toLowerCase();
-      var styleAtr = view.getAttribute('style');
+      var styleAtr = view.getAttribute("style");
       var style = styleAtr;
-  
-      var html = view.textContent
+
+      var html = view.textContent;
       var obj = {};
-      obj['type'] = name
+      obj["type"] = name;
 
       if (view.hasAttributes()) {
-       var config = this.getAttributes(view);
-       obj['config'] = config;
+        var config = this.getAttributes(view);
+        obj["config"] = config;
       }
 
-      if (name == 'text' && !header) {
-        obj['text'] = this.parseText(html)
-        obj['links'] = header
+      if (name == "text" && !header) {
+        obj["text"] = this.parseText(html);
+        obj["links"] = header;
         if (style) {
-          obj['style'] = style;
+          obj["style"] = style;
         }
-        return obj
+        return obj;
       }
 
-      if (name == 'text' && header) {
-        obj['text'] = this.parseHeaderText(html)
-        obj['title'] = this.parseTitle(html)
-        obj['links'] = this.parseHeaderLinks(html)
+      if (name == "text" && header) {
+        obj["text"] = this.parseHeaderText(html);
+        obj["title"] = this.parseTitle(html);
+        obj["links"] = this.parseHeaderLinks(html);
         if (style) {
-          obj['style'] = style;
+          obj["style"] = style;
         }
-        return obj
+        return obj;
       }
 
-      if (name == 'form') {
-        obj['title'] = this.parseTitle(html)
-        obj['fields'] = []
-        var formtext = this.parseTextOnly(view.childNodes[0].textContent)
+      if (name == "form") {
+        obj["title"] = this.parseTitle(html);
+        obj["fields"] = [];
+        var formtext = this.parseTextOnly(view.childNodes[0].textContent);
         if (formtext) {
-          obj['text'] = formtext
+          obj["text"] = formtext;
         }
-        
-        var fields = view.querySelectorAll('Field');
+
+        var fields = view.querySelectorAll("Field");
 
         for (var x = 0; x < fields.length; x++) {
-          var field = this.getAttributes(fields[x])
-          field['text'] = md.render(fields[x].textContent);
-          obj['fields'].push(field)
+          var field = this.getAttributes(fields[x]);
+          field["text"] = md.render(fields[x].textContent);
+          obj["fields"].push(field);
         }
 
-        return obj
+        return obj;
       }
 
-      if (name == 'image') {
-        var imageUrl = this.regexMatch(html, 'url')
+      if (name == "image") {
+        var imageUrl = this.regexMatch(html, "url");
         if (imageUrl) {
           var image = {
-            url: imageUrl[0].replace(')', '')
-          }
-          obj['image'] = image
+            url: imageUrl[0].replace(")", ""),
+          };
+          obj["image"] = image;
           if (style) {
-            obj['style'] = style;
+            obj["style"] = style;
           }
-          return obj
-        } 
+          return obj;
+        }
       }
     },
     createBlock(block) {
       var name = block.nodeName.toLowerCase();
-      var styleAtr = block.getAttribute('style');
-      
+      var styleAtr = block.getAttribute("style");
+
       var style = styleAtr;
-     
+
       var obj = {};
       obj[name] = {};
 
       if (block.hasAttributes()) {
-       var attrs = block.attributes;
-       var config = this.getAttributes(block);
-       obj[name]['config'] = config;
+        var attrs = block.attributes;
+        var config = this.getAttributes(block);
+        obj[name]["config"] = config;
       }
 
       var viewNodes = block.childNodes;
 
       var views = [];
-       for (var x = 0; x < viewNodes.length; x++) {
-          if (viewNodes[x].nodeName !== '#text' && name !== 'header') {
-            var view = this.createView(viewNodes[x], false);
-            views.push(view)
-          }
-          if (viewNodes[x].nodeName !== '#text' && name === 'header') {
-            var view = this.createView(viewNodes[x], true);
-            views.push(view)
-          }
-     
+      for (var x = 0; x < viewNodes.length; x++) {
+        if (viewNodes[x].nodeName !== "#text" && name !== "header") {
+          var view = this.createView(viewNodes[x], false);
+          views.push(view);
         }
+        if (viewNodes[x].nodeName !== "#text" && name === "header") {
+          var view = this.createView(viewNodes[x], true);
+          views.push(view);
+        }
+      }
 
       if (this.parseTitle(viewNodes[0].textContent)) {
-        var title = this.parseTitle(viewNodes[0].textContent, 'text');
-        obj[name]['title'] = title;
+        var title = this.parseTitle(viewNodes[0].textContent, "text");
+        obj[name]["title"] = title;
       }
 
       if (views.length) {
-        obj[name]['views'] = views.filter(function(e){return e})
+        obj[name]["views"] = views.filter(function(e) {
+          return e;
+        });
       }
 
       var code = this.parseCode(block.textContent);
 
       if (code && code.config) {
-        obj[name]['config'] = code.config;
+        obj[name]["config"] = code.config;
       }
       if (code && code.style) {
-        obj[name]['style'] = code.style;
+        obj[name]["style"] = code.style;
       }
 
       if (style) {
-        obj[name]['style'] = style;
+        obj[name]["style"] = style;
       }
- 
 
-      if (name == 'menu' || name == 'header') {
-        obj[name]['links'] = this.parseHeaderLinks(block.textContent);
+      if (name == "menu" || name == "header") {
+        obj[name]["links"] = this.parseHeaderLinks(block.textContent);
       }
-            
-      return obj
+
+      return obj;
     },
     parseCode(text) {
       var code = text.match(/```([^`]*)```/);
       if (code) {
-        return YAML.parse(code[1])
+        return YAML.parse(code[1]);
       } else {
-        return false
+        return false;
       }
     },
     parseTitle(text, render) {
-      var title = this.regexMatch(text, 'title');
-      if (title[1] && render == 'text') {
-        return title[1].trim();        
+      var title = this.regexMatch(text, "title");
+      if (title[1] && render == "text") {
+        return title[1].trim();
       } else if (title) {
-        return md.render(title[0]).replace('\n', '');
+        return md.render(title[0]).replace("\n", "");
       } else {
-        return ''
+        return "";
       }
     },
     parseSubtitle(text) {
-      var regex = /^#{2}([^#].*?)\n/
-      const matches = text.match(regex)
-      return matches
+      var regex = /^#{2}([^#].*?)\n/;
+      const matches = text.match(regex);
+      return matches;
     },
     parseText(text) {
-      if(text.includes('---')) {
-        var textContent = text.split('---').map(x => this.parseTextContent(x));
-        return textContent
+      if (text.includes("---")) {
+        var textContent = text
+          .split("---")
+          .map((x) => this.parseTextContent(x));
+        return textContent;
       } else {
         var array = [];
-        array.push(this.parseTextContent(text))
-        return array
+        array.push(this.parseTextContent(text));
+        return array;
       }
     },
-    parseTextContent(text){
+    parseTextContent(text) {
       var html = md.render(text);
       if (this.containsVideo(text)) {
-        html = this.parseVideo(html)
-      } 
-      return html
+        html = this.parseVideo(html);
+      }
+      return html;
     },
-    parseTextOnly(text){
-      var regex = /^(#{1,6}\s*.+)/mg;
-      var html = text.replace(regex, '');
-      return md.render(html)
+    parseTextOnly(text) {
+      var regex = /^(#{1,6}\s*.+)/gm;
+      var html = text.replace(regex, "");
+      return md.render(html);
     },
     parseLinks(text) {
-        var html = md.renderInline(text);
-        const regex = /<\s*a[^>]*>(.*?)<\s*\/s*a>/gm
-        const matches = html.match(regex)
-        return matches
+      var html = md.renderInline(text);
+      const regex = /<\s*a[^>]*>(.*?)<\s*\/s*a>/gm;
+      const matches = html.match(regex);
+      return matches;
     },
-    parseHeaderText(text){
-      var titleRegex = /^#{2}([^#].*?)\n/mg;
+    parseHeaderText(text) {
+      var titleRegex = /^#{2}([^#].*?)\n/gm;
       var linksRegex = /<p><\s*a[^>]*>(.*?)<\s*\/s*a><\/p>/gs;
 
-      var noTitle = text.replace(titleRegex, '')
+      var noTitle = text.replace(titleRegex, "");
       var html = md.render(noTitle);
-      var text = html.replace(linksRegex, '').replace(/(\r\n|\n|\r)/gm,"")
-      return [text]
+      var text = html.replace(linksRegex, "").replace(/(\r\n|\n|\r)/gm, "");
+      return [text];
     },
     parseHeaderLinks(text) {
-        var html = md.renderInline(text);
-        const regex = /<\s*a[^>]*>(.*?)<\s*\/s*a>/gm
-        const matches = '<body>' + html.match(regex) + '</body>'
+      var html = md.renderInline(text);
+      const regex = /<\s*a[^>]*>(.*?)<\s*\/s*a>/gm;
+      const matches = "<body>" + html.match(regex) + "</body>";
 
-        var array = [];
+      var array = [];
 
-        var doc = document.createElement("html");
-        doc.innerHTML = matches;
-        var links = doc.getElementsByTagName("a")
-        var urls = [];
+      var doc = document.createElement("html");
+      doc.innerHTML = matches;
+      var links = doc.getElementsByTagName("a");
+      var urls = [];
 
-        for (var i=0; i<links.length; i++) {
-          var obj = {
-            text: links[i].textContent,
-            url: links[i].getAttribute("href"),
-            style: links[i].getAttribute("style")
-          }
-          urls.push(obj)
-        }
-        return urls
+      for (var i = 0; i < links.length; i++) {
+        var obj = {
+          text: links[i].textContent,
+          url: links[i].getAttribute("href"),
+          style: links[i].getAttribute("style"),
+        };
+        urls.push(obj);
+      }
+      return urls;
     },
     isImage(text) {
-      var regex = /\.(gif|jpg|jpeg|tiff|png)/g
+      var regex = /\.(gif|jpg|jpeg|tiff|png)/g;
       if (regex.exec(text) !== null) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     },
     containsVideo(text) {
-      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim
+      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim;
       if (regex.exec(text) !== null) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     },
     parseVideo(text) {
-      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim
+      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim;
       var videoEmbeds = text.replace(regex, function(match, token) {
-        return "<div class='videoWrapper' style='--aspect-ratio: 3 / 4;'><iframe width='560' height='349' src='https://www.youtube.com/embed/" + token + "' frameborder='0' allowfullscreen></iframe></div>"
+        return (
+          "<div class='videoWrapper' style='--aspect-ratio: 3 / 4;'><iframe width='560' height='349' src='https://www.youtube.com/embed/" +
+          token +
+          "' frameborder='0' allowfullscreen></iframe></div>"
+        );
       });
-      return videoEmbeds
+      return videoEmbeds;
     },
     regexMatch(text, element) {
       var regex = {
@@ -323,53 +297,61 @@ export default {
         url: /(https?:\/\/[^\s]+)/,
         link: /\[([^\[]+)\](\(.*\))/gm,
         image: /[\/.](gif|jpg|jpeg|tiff|png)$/i,
-        atag: /<\s*a[^>]*>(.*?)<\s*\/s*a>/
-      }
+        atag: /<\s*a[^>]*>(.*?)<\s*\/s*a>/,
+      };
       if (text.match(regex[element])) {
         var match = regex[element].exec(text);
         return match;
       } else {
-        return false
+        return false;
       }
     },
     escape(string) {
       return encodeURI(string);
     },
-    unescape(string){
+    unescape(string) {
       return decodeURI(string);
     },
     parseBlocks(text) {
-      var regex = /&(?!#?[a-z0-9]+;)/mg;
-      var cleant_text = text.replace(regex, '&amp;');
+      var regex = /&(?!#?[a-z0-9]+;)/gm;
+      var cleant_text = text.replace(regex, "&amp;");
       var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
-      var blocks = xml.getElementsByTagName('Webkit')[0].childNodes;
-       console.log(xml)
-          console.log(blocks)
+      var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
+      console.log(xml);
+      console.log(blocks);
 
       var array = [];
       for (var x = 0; x < blocks.length; x++) {
-        if (blocks[x].nodeName !== '#text' && blocks[x].nodeName !== 'Config') {
+        if (blocks[x].nodeName !== "#text" && blocks[x].nodeName !== "Config") {
           var block = this.createBlock(blocks[x]);
-          array.push(block)
+          array.push(block);
         }
-        if (blocks[x].nodeName === 'Config') {
+        if (blocks[x].nodeName === "Config") {
           this.config = this.parseCode(blocks[x].textContent);
           if (this.config.site && this.config.site.template) {
-            this.activeTemplate = this.config.site.template.toLowerCase();
+            if (this.config.site.template.toLowerCase() == 'campaign') {
+              this.activeTemplate = 'edgeryders'
+            }
+            else if (this.config.site.template.toLowerCase() == 'standard') {
+              this.activeTemplate == 'minimal'
+            }
+            else {
+             this.activeTemplate = this.config.site.template.toLowerCase();
+            }
           }
           if (this.config.site && this.config.site.theme) {
-            this.loadThemeLocal(this.config.site.theme)
-          } 
+            this.loadThemeLocal(this.config.site.theme);
+          }
         }
       }
 
       return array;
     },
     type(obj) {
-      return Object.keys(obj)[0]
+      return Object.keys(obj)[0];
     },
-    isNumeric(num){
-      return !isNaN(num)
+    isNumeric(num) {
+      return !isNaN(num);
     },
     validateYaml(str) {
       try {
@@ -381,50 +363,52 @@ export default {
     },
     getYaml(value) {
       const doc = new DOMParser().parseFromString(value, "text/html");
-      var yaml = [...doc.querySelectorAll('code')].map(code => code.textContent);
+      var yaml = [...doc.querySelectorAll("code")].map(
+        (code) => code.textContent
+      );
       if (this.validateYaml(yaml[0])) {
         return YAML.parse(yaml[0]);
       } else {
-        return false
+        return false;
       }
     },
     getImage(dom) {
-      return dome
+      return dome;
     },
     loadTemplate(id) {
       var self = this;
-      fetch('https://edgeryders.eu/raw/' + id + '.json')
-      .then(response => {
-        response.text().then(function (text) {
-          self.blocks = self.parseBlocks(text);
-        });
-      })
-      .catch(error => console.error(error));
+      fetch("https://edgeryders.eu/raw/" + id + ".json")
+        .then((response) => {
+          response.text().then(function(text) {
+            self.blocks = self.parseBlocks(text);
+          });
+        })
+        .catch((error) => console.error(error));
     },
     loadTheme() {
-      let file = document.createElement('link');
-      file.rel = 'stylesheet';
-      document.head.appendChild(file)
+      let file = document.createElement("link");
+      file.rel = "stylesheet";
+      document.head.appendChild(file);
     },
     loadThemeLocal(theme) {
-      if (this.configuration.mode == 'local') {
-        require('./assets/themes/' + theme.toLowerCase() + '.scss');
+      if (this.configuration.mode == "local") {
+        require("./assets/themes/" + theme.toLowerCase() + ".scss");
       } else {
-        let link = document.createElement('link');
-        link.rel  = 'stylesheet';
-        link.type = 'text/css';
-        link.href = '/' + theme.toLowerCase() + '.css';
-        link.media = 'all';
+        let link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = "/" + theme.toLowerCase() + ".css";
+        link.media = "all";
         console.log(link);
-        document.head.appendChild(link)
+        document.head.appendChild(link);
       }
     },
     loadTemplateLocal(template) {
-      var temp = require('./data/' + template);
+      var temp = require("./data/" + template);
       this.blocks = this.parseBlocks(temp.default);
-    }
+    },
   },
-  created(){
+  created() {
     var temp = this.template;
     var config = this.configuration;
     var self = this;
@@ -432,53 +416,44 @@ export default {
     var address = window.location.hostname;
     var self = this;
 
-    if (config.mode == 'local') {
+    if (config.mode == "local") {
       this.loadTemplateLocal(config.template);
-
-      
     }
 
-    if (config.mode == 'sandbox') {
-      fetch('https://edgeryders.eu/t/13671.json')
-      .then(response => response.json())
-      .then(data => {
-        
-        // var template = 13686;
-        var template = 13799;
+    if (config.mode == "sandbox") {
+      fetch("https://edgeryders.eu/t/13671.json")
+        .then((response) => response.json())
+        .then((data) => {
+          // var template = 13686;
+          var template = 13799;
 
-        var directories = this.getYaml(data.post_stream.posts[0].cooked);
-        var result = directories.filter(x => x.alias == pathname || x.id == pathname || x.domain == address)[0];
-        if (pathname && !isNaN(pathname)) {
-          try {
-            self.loadTemplate(pathname);
-          }
-          catch(e) {
-           self.loadTemplate(template);
-          }
-        }
-        else if (result && result.id) {
-          try {
-            self.loadTemplate(result.id);
-          }
-          catch(e) {
+          var directories = this.getYaml(data.post_stream.posts[0].cooked);
+          var result = directories.filter(
+            (x) =>
+              x.alias == pathname || x.id == pathname || x.domain == address
+          )[0];
+          if (pathname && !isNaN(pathname)) {
+            try {
+              self.loadTemplate(pathname);
+            } catch (e) {
+              self.loadTemplate(template);
+            }
+          } else if (result && result.id) {
+            try {
+              self.loadTemplate(result.id);
+            } catch (e) {
+              self.loadTemplate(template);
+            }
+          } else {
             self.loadTemplate(template);
           }
-        }
-        else {
-          self.loadTemplate(template);
-        }
-      })
+        });
     }
-
-  }
+  },
 };
-
 </script>
 
-
-
 <style lang="scss">
-
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -500,7 +475,7 @@ hr {
   }
 }
 .menu {
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   color: white;
   position: fixed;
   display: flex;
@@ -514,23 +489,23 @@ hr {
   padding: 0 2%;
   font-family: Helvetica;
   .title {
-    font-size: .85rem;
+    font-size: 0.85rem;
   }
   .links {
     display: inline-block;
-      a {
-        color: white;
-        text-decoration: none;
-        display: inline-flex;
-        justify-content: center;
-        padding: 0.5rem 0.85rem;
-        border-left: 1px solid rgba(255,255,255,0.2);
-        &:hover {
-          text-decoration: underline;
-        }
-        &:first-child {
-          border: none
-        }
+    a {
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      justify-content: center;
+      padding: 0.5rem 0.85rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.2);
+      &:hover {
+        text-decoration: underline;
+      }
+      &:first-child {
+        border: none;
+      }
     }
   }
 }
@@ -571,9 +546,9 @@ hr {
       margin: 0 0 1.5rem 0;
     }
     h3 {
-      margin: 0 0 .55rem 0;
+      margin: 0 0 0.55rem 0;
       border-bottom: 1px solid #efefef;
-      padding-bottom: .75rem;
+      padding-bottom: 0.75rem;
     }
     p {
       font-size: 1.1rem;
@@ -584,7 +559,7 @@ hr {
         width: 1em;
         height: 1em;
         position: relative;
-        top: .1em;
+        top: 0.1em;
       }
     }
     img:not(.emoji) {
@@ -630,7 +605,6 @@ hr {
       margin: 0 0 0.5rem 0;
       line-height: 2rem;
     }
-
   }
 }
 
@@ -662,7 +636,8 @@ hr {
       p + p {
         margin-top: 1rem;
       }
-      ol, ul {
+      ol,
+      ul {
         margin: 1rem 0;
         padding: 0 0 0 1.3rem;
         line-height: 1.75rem;
@@ -703,9 +678,9 @@ body {
   h3 {
     font-size: 1.3rem;
     margin: 0 0 1rem 0;
-    margin: 0 0 .55rem 0;
+    margin: 0 0 0.55rem 0;
     border-bottom: 1px solid #efefef;
-    padding-bottom: .75rem;
+    padding-bottom: 0.75rem;
   }
   p {
     font-size: 1.1rem;
@@ -716,7 +691,7 @@ body {
       width: 1em;
       height: 1em;
       position: relative;
-      top: .1em;
+      top: 0.1em;
     }
   }
   .fields {
@@ -725,15 +700,16 @@ body {
   .field {
     margin: 0 0 1rem 0;
     *:focus {
-        outline: none;
-        border: 1px solid #000;
-        background: #fafafa;
-      }
-    input, textarea {
+      outline: none;
+      border: 1px solid #000;
+      background: #fafafa;
+    }
+    input,
+    textarea {
       width: 96%;
       padding: 1rem;
       border: 1px solid #ddd;
-      font-size: .95rem;
+      font-size: 0.95rem;
       color: #000 !important;
       font-weight: bold;
     }
@@ -750,10 +726,10 @@ body {
     button {
       border: 1px solid #ddd;
       border-radius: 6px;
-      font-size: .85rem;
-      padding: .7rem 1rem;
+      font-size: 0.85rem;
+      padding: 0.7rem 1rem;
       background: white;
-      margin-right: .5rem;
+      margin-right: 0.5rem;
     }
   }
 }
@@ -765,7 +741,7 @@ body {
     margin-bottom: 0;
   }
   input {
-    padding: .7rem;
+    padding: 0.7rem;
     width: 93.6%;
   }
   .terms {
@@ -820,17 +796,16 @@ body {
   }
   .form {
     .field {
-      input, textarea {
+      input,
+      textarea {
         width: 90%;
         padding: 1rem;
         border: 1px solid #ddd;
-        font-size: .95rem;
+        font-size: 0.95rem;
         color: #000 !important;
         font-weight: bold;
       }
     }
   }
 }
-
-
 </style>

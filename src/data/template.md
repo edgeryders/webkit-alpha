@@ -5,7 +5,7 @@
 ```
 site:
   title: Research Network
-  template: campaign
+  template: edgeryders
   theme: research
   lang: en-US
 menu: 

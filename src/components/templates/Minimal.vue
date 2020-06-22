@@ -57,7 +57,7 @@ import TextView from '@/components/views/Text.vue'
 import FormView from '@/components/views/Form.vue'
 
 export default {
-  name: "App",
+  name: "Minimal Template",
   data() {
     return {
       tags: null,
