@@ -49,11 +49,13 @@
         </div>
       </div>
     </div>
-    <div class="submit">Submit</div>
+    <div class="submit" @click="submitForm">Submit</div>
   </div>
 </template>
 
 <script>
+import submit from "@/helpers/discourse";
+
 export default {
   name: "TextView",
   data() {
@@ -80,6 +82,18 @@ export default {
     config: Object
   },
   methods: {
+    submitForm(){
+      var form = {city: {value: "sadads"}, alias: {value: "adsads"}, bio: {value: "ads"}, name: { value: "owen" }, email: {value: "owengot@gmail.com"} };
+      console.log(form);
+      submit(form).then(() => window.alert('success'))
+     },
+    transformForSubmit(obj) {
+     return Object.entries(JSON.parse(JSON.stringify(obj)))
+       .reduce((result, [key, value]) => {
+         result[key] = { value: (value && value.text) || value };
+         return result;
+       }, {});
+    },
     validateUsername() {
       var username = this.account.username.text.trim();
       var self = this;

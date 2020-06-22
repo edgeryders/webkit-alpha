@@ -2,6 +2,7 @@
   <div id="app">
     <Campaign v-if="activeTemplate == 'campaign'" :blocks="blocks" :config="config" />
     <Standard v-if="activeTemplate == 'standard'" :blocks="blocks" :config="config" />
+    <Research v-if="activeTemplate == 'research'" :blocks="blocks" :config="config" />
   </div>
 </template>
 
@@ -16,6 +17,7 @@ import FormView from './components/views/Form.vue'
 
 import Campaign from './components/templates/Campaign.vue'
 import Standard from './components/templates/Standard.vue'
+import Research from './components/templates/Research.vue'
 
 export default {
   name: "App",
@@ -39,6 +41,7 @@ export default {
   components: {
     Campaign,
     Standard,
+    Research,
     TextView,
     FormView
   },
@@ -98,7 +101,6 @@ export default {
 
       if (name == 'text' && !header) {
         obj['text'] = this.parseText(html)
-        obj['title'] = this.parseTitle(html)
         obj['links'] = header
         if (style) {
           obj['style'] = style;
@@ -176,7 +178,13 @@ export default {
             var view = this.createView(viewNodes[x], true);
             views.push(view)
           }
-       }
+     
+        }
+
+      if (this.parseTitle(viewNodes[0].textContent)) {
+        var title = this.parseTitle(viewNodes[0].textContent, 'text');
+        obj[name]['title'] = title;
+      }
 
       if (views.length) {
         obj[name]['views'] = views.filter(function(e){return e})
@@ -194,15 +202,10 @@ export default {
       if (style) {
         obj[name]['style'] = style;
       }
-     
-      var title = this.parseTitle(block.textContent);
-
-      if (title) {
-        obj[name]['title'] = title;
-      }
+ 
 
       if (name == 'menu' || name == 'header') {
-        obj[name]['links'] = this.parseLinks(block.textContent);
+        obj[name]['links'] = this.parseHeaderLinks(block.textContent);
       }
             
       return obj
@@ -222,7 +225,7 @@ export default {
       } else if (title) {
         return md.render(title[0]).replace('\n', '');
       } else {
-        return false
+        return ''
       }
     },
     parseSubtitle(text) {
@@ -241,12 +244,14 @@ export default {
       }
     },
     parseTextContent(text){
-      var regex = /^#{2}([^#].*?)\n/mg;
-      var html = text.replace(regex, '');
-      return md.render(html)
+      var html = md.render(text);
+      if (this.containsVideo(text)) {
+        html = this.parseVideo(html)
+      } 
+      return html
     },
     parseTextOnly(text){
-      var regex = /^#*([^#].*?)\n/mg;
+      var regex = /^(#{1,6}\s*.+)/mg;
       var html = text.replace(regex, '');
       return md.render(html)
     },
@@ -295,6 +300,21 @@ export default {
         return false
       }
     },
+    containsVideo(text) {
+      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim
+      if (regex.exec(text) !== null) {
+        return true
+      } else {
+        return false
+      }
+    },
+    parseVideo(text) {
+      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim
+      var videoEmbeds = text.replace(regex, function(match, token) {
+        return "<div class='videoWrapper' style='--aspect-ratio: 3 / 4;'><iframe width='560' height='349' src='https://www.youtube.com/embed/" + token + "' frameborder='0' allowfullscreen></iframe></div>"
+      });
+      return videoEmbeds
+    },
     regexMatch(text, element) {
       var regex = {
         title: /\#+(.*?)\n/gi,
@@ -319,8 +339,12 @@ export default {
       return decodeURI(string);
     },
     parseBlocks(text) {
-      var xml = new DOMParser().parseFromString(text, "text/xml");
+      var regex = /&(?!#?[a-z0-9]+;)/mg;
+      var cleant_text = text.replace(regex, '&amp;');
+      var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
       var blocks = xml.getElementsByTagName('Webkit')[0].childNodes;
+       console.log(xml)
+          console.log(blocks)
 
       var array = [];
       for (var x = 0; x < blocks.length; x++) {
@@ -333,6 +357,9 @@ export default {
           if (this.config.site && this.config.site.template) {
             this.activeTemplate = this.config.site.template.toLowerCase();
           }
+          if (this.config.site && this.config.site.theme) {
+            this.loadThemeLocal(this.config.site.theme)
+          } 
         }
       }
 
@@ -375,16 +402,22 @@ export default {
       .catch(error => console.error(error));
     },
     loadTheme() {
-      var style = document.createElement('style');
-      style.type = 'text/css';
-      style.innerHTML = '* {  transition: all 1s ease;} :root { --primary-color: orange; } .menu {   background: var(--primary-color) !important }';
-      document.getElementsByTagName('head')[0].appendChild(style);
-    },
-    loadThemeLocal(stylesheet) {
       let file = document.createElement('link');
       file.rel = 'stylesheet';
-      file.href =  require('./assets/themes/' + stylesheet)
       document.head.appendChild(file)
+    },
+    loadThemeLocal(theme) {
+      if (this.configuration.mode == 'local') {
+        require('./assets/themes/' + theme.toLowerCase() + '.scss');
+      } else {
+        let link = document.createElement('link');
+        link.rel  = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '/' + theme.toLowerCase() + '.css';
+        link.media = 'all';
+        console.log(link);
+        document.head.appendChild(link)
+      }
     },
     loadTemplateLocal(template) {
       var temp = require('./data/' + template);
@@ -401,7 +434,8 @@ export default {
 
     if (config.mode == 'local') {
       this.loadTemplateLocal(config.template);
-      // this.loadThemeLocal(config.theme);
+
+      
     }
 
     if (config.mode == 'sandbox') {
@@ -507,7 +541,7 @@ hr {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding-bottom: 60px;
+  padding-bottom: 0px;
   width: 100%;
   .wrapper {
     width: 80%;
@@ -531,7 +565,7 @@ hr {
     font-size: 1.4rem;
     font-family: Helvetica;
   }
-  .text {
+  .text_wrapper {
     h2 {
       font-size: 1.6rem;
       margin: 0 0 1.5rem 0;
@@ -566,22 +600,27 @@ hr {
   // margin-top: 4rem;
   min-height: 120px;
   border-bottom: 1px solid #ddd;
-  background: #fafafa;
-  padding: 4rem 0;
-  margin-bottom: 30px;
+  padding: 6rem 0 3rem;
+  display: flex;
+  justify-content: center !important;
   .wrapper {
     align-items: center;
+    justify-content: flex-starts !important;
+    margin: 0 auto;
   }
   .image {
+    width: 30%;
+    margin-right: 2rem;
     img {
       width: 100%;
     }
   }
   .text {
     font-family: Helvetica;
-    margin: 0 2rem;
+    .hero_title {
+      font-size: 1.5rem !important;
+    }
     h2 {
-      font-size: 2.1rem !important;
       margin: 0 0 1rem 0;
       padding: 0 0 1rem 0;
       border-bottom: 1px solid #ddd;
@@ -607,11 +646,8 @@ hr {
   .text {
     .horizontal {
       display: flex;
-      div {
-        width: 100%;
-      }
       div + div {
-        margin-left: 3rem;
+        margin-left: 3rem !important;
       }
     }
     .topic {
@@ -663,6 +699,7 @@ body {
 }
 
 .form {
+  margin-bottom: 1.5rem;
   h3 {
     font-size: 1.3rem;
     margin: 0 0 1rem 0;
@@ -745,7 +782,7 @@ body {
   }
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 600px) {
   .section {
     padding: 2rem 0 20px;
     .title {
@@ -794,5 +831,6 @@ body {
     }
   }
 }
+
 
 </style>

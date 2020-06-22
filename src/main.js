@@ -6,7 +6,12 @@ var markdownItAttrs = require('markdown-it-attrs');
 var emoji = require('markdown-it-emoji');
 import twemoji from 'twemoji'
 import vuescroll from 'vue-scroll'
+
+import vueHeadful from 'vue-headful';
  
+Vue.component('vue-headful', vueHeadful);
+
+
 Vue.config.productionTip = false;
 
 md.use(markdownItAttrs).use(emoji);

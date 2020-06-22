@@ -1,4 +1,5 @@
 module.exports = {
+  runtimeCompiler: true,
   configureWebpack: config => {
     config.module.rules.push(
       {

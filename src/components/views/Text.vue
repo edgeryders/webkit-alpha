@@ -1,8 +1,8 @@
 <template>
-  <div class="text" :style="config && config.style">
+  <div class="text_wrapper" :class="[{'single': content.length == 1 }, config && config.class]" :style="config && config.style">
     <div v-if="title" class="text_title" v-html="title"></div>
     <div :class="{'horizontal': content.length > 1 }">
-      <div class="text_content" v-for="(content, index) in content" v-html="content"></div>
+      <component class="text_content" v-for="(test, index) in content" v-bind:is="parse(test)" :key="index"></component>
       <div v-if="topic_text" v-html="topic_text" class="topic"></div>
       <div v-if="links" class="links">
         <a class="text_link" v-for="link in links" :href="link.url" :style="link.style" target="_blank">{{link.text}}</a>
@@ -12,18 +12,51 @@
 </template>
 
 <script>
+import User from "@/components/elements/User.vue";
+import Vue from 'vue';
+
+Vue.component('User', User);
+
 export default {
   name: "TextView",
   data() {
     return {
-      topic_text: null
+      topic_text: null,
+      dynamic: 'Test'
     }
+  },
+  components: {
+    User
   },
   props: {
     title: String,
     text: Array,
     links: Array,
-    config: Object
+    config: Object,
+    video: Object
+  },
+  methods: {
+    parse(text) {
+      var match = text.match(/\B@[a-z0-9_-]+/gim);
+      console.log(match)
+      if (match) {
+        var username = text.match(/\B@[a-z0-9_-]+/gim)[0];
+        function getUserComponent(match, offset, string) {
+          return '<User username="' + match + '"></User>'
+        }
+
+        var html = text.replace(/\B@[a-z0-9_-]+/gim, getUserComponent);
+  
+
+        return {
+            template: '<div>' + html + '</div>'
+        }
+      } else {
+        return {
+            template: '<div>' + text + '</div>'
+        }
+      }
+    }
   },
   created(){
     this.content = this.text;

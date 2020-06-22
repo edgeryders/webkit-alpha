@@ -1,0 +1,117 @@
+.section.header {
+	border-bottom: 1px solid #ddd !important;
+	.wrapper {
+	  width: 75% !important;
+	  max-width: 920px;
+	  padding-left: 30px;
+	  .text_wrapper {
+	  	padding: 0 !important;
+		  .text_title {
+		  	margin-bottom: 1rem !important;
+		  	h2 {
+		  		background: none !important;
+		  		padding: 0 !important;
+		  		color: black;
+		  		margin-bottom: 0 !important;
+		  		font-size: 2rem !important;
+		  	}
+		  } 
+		  .text_content {
+		  	width: 60%;
+		  	p {
+		  		background: none !important;
+		  		padding: 0 !important;
+		  		margin-top: 0 !important;
+		  		font-size: 1.24rem !important;
+		  		font-weight: bold;
+		  		line-height: 1.8rem !important;
+		  	}
+		  }
+	  }
+	}
+}
+
+iframe {
+	margin-top: -1rem;
+}
+
+.menu {
+	.links {
+		a {
+	 		font-weight: bold !important;
+	 	}
+	}
+}
+
+.view.text {
+	ul {
+		li {
+			list-style: square;
+		}
+	}
+}
+
+.section.content {
+	padding-bottom: 0;
+}
+
+.section.footer {
+	margin-top: 30px;
+}
+
+@media only screen and (max-width: 600px) {
+.menu {
+
+
+ .title {
+	border-bottom: none !important;
+ }
+}
+.section .view + .view {
+	margin: 0;
+}
+.section.content {
+	padding: 1rem 0 0 0 !important;
+}
+.section.header {
+	margin-bottom: 20px;
+	height: auto !important;
+	padding: 80px 0 60px !important;
+	border-bottom: 1px solid #ddd !important;
+	.wrapper {
+	  width: 80% !important;
+	  margin: 0 auto;
+	  max-width: 920px;
+	  padding-left: 0px;
+	  .text_wrapper {
+	  	padding: 0 !important;
+	  	border-left: none;
+		  .text_title {
+		  	width: 90%;
+		  	margin-bottom: 1rem !important;
+		  	border-bottom: 1px solid #ddd;
+		  	padding-bottom: 1rem;
+		  	h2 {
+		  		background: none !important;
+		  		padding: 0 !important;
+		  		line-height: 2rem !important;
+		  		margin-bottom: 0 !important;
+		  		font-size: 1.6rem !important;
+		  	}
+		  } 
+		  .text_content {
+		  	width: 100%;
+		  	p {
+		  		background: none !important;
+		  		padding: 0 !important;
+		  		margin-top: 0 !important;
+		  		font-size: 1.24rem !important;
+		  		font-weight: bold;
+		  		line-height: 1.8rem !important;
+		  	}
+		  }
+	  }
+	}
+}
+
+}
