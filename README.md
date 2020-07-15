@@ -1,20 +1,22 @@
-# Webkit Alpha
+# Webkit 1.0
 
 This repository is for new Webkit development updates.
 
 ## Update 0.1
 
+This repository is for Webkit 1.0 which uses the XML template formate.
+
 This version of the Webkit features:
 
-- A new parser for generating sites using XML syntax and Markdown for shorter and simpler configurations. An example of this syntax can be seen in use [here](https://edgeryders.eu/raw/13810.json).
-- A sandbox and local mode for switching between loading local and remote configurations
-- A template system for loading specific layouts from a configuration 
-- A theme system for loading custom styles from a configuration
-- Improved inline styling options 
+ - A  parser for generating sites using XML syntax and Markdown for shorter and simpler configurations. An example of this syntax can be seen in use [here](https://edgeryders.eu/raw/13810.json).
+ - A sandbox and local mode for switching between loading local and remote configurations
+ - A template system for loading specific layouts from a configuration 
+ - A theme system for loading custom styles from a configuration
+ - Improved inline styling options 
 
 ## XML Parser
 
-The XML parser will not replace the JSON configuration syntax, but provide an easier option for project managers to generate a site from scratch.
+The XML parser will not replace the JSON configuration syntax (which remains available [here](https://github.com/edgeryders/webkit_components)), but provides an easier configuration syntax for project managers to generate a site from scratch.
 
 ### The template syntax requires a front matter in YAML for configuring the site
 
