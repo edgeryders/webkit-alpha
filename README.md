@@ -1,14 +1,10 @@
 # Webkit 1.0
 
-This repository is for new Webkit development updates.
-
-## Update 0.1
-
 This repository is for Webkit 1.0 which uses the XML template formate.
 
 This version of the Webkit features:
 
- - A  parser for generating sites using XML syntax and Markdown for shorter and simpler configurations. An example of this syntax can be seen in use [here](https://edgeryders.eu/raw/13810.json).
+ - A parser for generating sites using XML syntax and Markdown for shorter and simpler configurations. An example of this syntax can be seen in use [here](https://edgeryders.eu/raw/13810.json).
  - A sandbox and local mode for switching between loading local and remote configurations
  - A template system for loading specific layouts from a configuration 
  - A theme system for loading custom styles from a configuration
