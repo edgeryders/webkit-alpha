@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <component :is="activeTemplate" :blocks="blocks" :config="config"></component>
+    <component
+      :is="activeTemplate"
+      :blocks="blocks"
+      :config="config"
+    ></component>
   </div>
 </template>
 
@@ -34,7 +38,7 @@ export default {
   },
   components: {
     edgeryders,
-    minimal
+    minimal,
   },
   methods: {
     getAttributes(element) {
@@ -53,18 +57,32 @@ export default {
       }
       return obj;
     },
+    parseJson(value) {
+      var code = value.match(/```([^`]*)```/);
+      if (code) {
+        return JSON.parse(code[1]);
+      } else {
+        return false;
+      }
+    },
     createView(view, header) {
       var name = view.nodeName.toLowerCase();
       var styleAtr = view.getAttribute("style");
+      var dataAtr = view.getAttribute("data");
+      var tagAtr = view.getAttribute("tag");
       var style = styleAtr;
 
-      var html = view.textContent;
+      var html = view.innerHTML;
       var obj = {};
       obj["type"] = name;
 
       if (view.hasAttributes()) {
         var config = this.getAttributes(view);
         obj["config"] = config;
+      }
+
+      if (dataAtr) {
+        obj["data"] = dataAtr;
       }
 
       if (name == "text" && !header) {
@@ -117,10 +135,20 @@ export default {
           }
           return obj;
         }
+      } else {
+        obj["text"] = this.parseTextOnly(html);
+        obj["title"] = this.parseTitle(html, "text");
+        if (style) {
+          obj["style"] = style;
+        }
+        return obj;
       }
     },
     createBlock(block) {
       var name = block.nodeName.toLowerCase();
+      if (name == "content") {
+        name = "section";
+      }
       var styleAtr = block.getAttribute("style");
 
       var style = styleAtr;
@@ -138,11 +166,11 @@ export default {
 
       var views = [];
       for (var x = 0; x < viewNodes.length; x++) {
-        if (viewNodes[x].nodeName !== "#text" && name !== "header") {
+        if (viewNodes[x].nodeName !== "#text" && viewNodes[x].nodeName !== "#comment" && name !== "header") {
           var view = this.createView(viewNodes[x], false);
           views.push(view);
         }
-        if (viewNodes[x].nodeName !== "#text" && name === "header") {
+        if (viewNodes[x].nodeName !== "#text"  && viewNodes[x].nodeName !== "#comment" && name === "header") {
           var view = this.createView(viewNodes[x], true);
           views.push(view);
         }
@@ -215,7 +243,7 @@ export default {
     },
     parseTextContent(text) {
       var html = md.render(text);
-      if (this.containsVideo(text)) {
+      if (this.parseVideo(text)) {
         html = this.parseVideo(html);
       }
       return html;
@@ -270,24 +298,36 @@ export default {
         return false;
       }
     },
-    containsVideo(text) {
-      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim;
-      if (regex.exec(text) !== null) {
-        return true;
+    parseVideo(text) {
+      text.match(
+        /(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/
+      );
+
+      if (RegExp.$3.indexOf("youtu") > -1) {
+        return this.parseYouTube(RegExp.$6, text);
+      } else if (RegExp.$3.indexOf("vimeo") > -1) {
+        return this.parseVimeo(RegExp.$6, text);
       } else {
         return false;
       }
     },
-    parseVideo(text) {
-      var regex = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim;
-      var videoEmbeds = text.replace(regex, function(match, token) {
-        return (
-          "<div class='videoWrapper' style='--aspect-ratio: 3 / 4;'><iframe width='560' height='349' src='https://www.youtube.com/embed/" +
-          token +
-          "' frameborder='0' allowfullscreen></iframe></div>"
-        );
-      });
-      return videoEmbeds;
+    parseYouTube(id, text) {
+      var youtube = /(?:https?:)?(?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/\S*?[^\w\s-])((?!videoseries)[\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/gim;
+      var embed =
+        "<div class='videoWrapper' style='--aspect-ratio: 3 / 4;'><iframe width='560' height='349' src='https://www.youtube.com/embed/" +
+        id +
+        "' frameborder='0' allowfullscreen></iframe></div>";
+      var video = text.replace(youtube, embed);
+      return video;
+    },
+    parseVimeo(id, text) {
+      var vimeo = /(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/gim;
+      var embed =
+        "<div class='videoWrapper' style='--aspect-ratio: 3 / 4;'><iframe src='https://player.vimeo.com/video/" +
+        id +
+        "' width='100%' height='330px' frameborder='0' webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>";
+      var video = text.replace(vimeo, embed);
+      return video;
     },
     regexMatch(text, element) {
       var regex = {
@@ -317,8 +357,6 @@ export default {
       var cleant_text = text.replace(regex, "&amp;");
       var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
       var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
-      console.log(xml);
-      console.log(blocks);
 
       var array = [];
       for (var x = 0; x < blocks.length; x++) {
@@ -329,18 +367,18 @@ export default {
         if (blocks[x].nodeName === "Config") {
           this.config = this.parseCode(blocks[x].textContent);
           if (this.config.site && this.config.site.template) {
-            if (this.config.site.template.toLowerCase() == 'campaign') {
-              this.activeTemplate = 'edgeryders'
-            }
-            else if (this.config.site.template.toLowerCase() == 'standard') {
-              this.activeTemplate == 'minimal'
-            }
-            else {
-             this.activeTemplate = this.config.site.template.toLowerCase();
+            if (this.config.site.template.toLowerCase() == "campaign") {
+              this.activeTemplate = "edgeryders";
+            } else if (this.config.site.template.toLowerCase() == "standard") {
+              this.activeTemplate == "minimal";
+            } else {
+              this.activeTemplate = this.config.site.template.toLowerCase();
             }
           }
           if (this.config.site && this.config.site.theme) {
             this.loadThemeLocal(this.config.site.theme);
+          } else {
+            this.loadThemeLocal('edgeryders');
           }
         }
       }
@@ -391,17 +429,12 @@ export default {
       document.head.appendChild(file);
     },
     loadThemeLocal(theme) {
-      if (this.configuration.mode == "local") {
-        require("./assets/themes/" + theme.toLowerCase() + ".scss");
-      } else {
-        let link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.type = "text/css";
-        link.href = "/" + theme.toLowerCase() + ".css";
-        link.media = "all";
-        console.log(link);
-        document.head.appendChild(link);
-      }
+      let link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.type = "text/css";
+      link.href = "/" + theme.toLowerCase() + ".css";
+      link.media = "all";
+      document.head.appendChild(link);
     },
     loadTemplateLocal(template) {
       var temp = require("./data/" + template);
@@ -412,7 +445,7 @@ export default {
     var temp = this.template;
     var config = this.configuration;
     var self = this;
-    var pathname = window.location.pathname.substring(1);
+    var pathname = window.location.pathname.substring(1).replace("/", "");
     var address = window.location.hostname;
     var self = this;
 
@@ -453,359 +486,4 @@ export default {
 };
 </script>
 
-<style lang="scss">
-#app {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-hr {
-  border-top-style: solid;
-  border-color: #ddd;
-}
-
-@keyframes hoverLink {
-  0% {
-    transform: translateY(5px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0px);
-    opacity: 1;
-  }
-}
-.menu {
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  position: fixed;
-  display: flex;
-  z-index: 9999;
-  align-items: center;
-  justify-content: space-between;
-  top: 0;
-  left: 0;
-  width: 96%;
-  height: 4rem;
-  padding: 0 2%;
-  font-family: Helvetica;
-  .title {
-    font-size: 0.85rem;
-  }
-  .links {
-    display: inline-block;
-    a {
-      color: white;
-      text-decoration: none;
-      display: inline-flex;
-      justify-content: center;
-      padding: 0.5rem 0.85rem;
-      border-left: 1px solid rgba(255, 255, 255, 0.2);
-      &:hover {
-        text-decoration: underline;
-      }
-      &:first-child {
-        border: none;
-      }
-    }
-  }
-}
-
-.section {
-  font-family: Helvetica;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding-bottom: 0px;
-  width: 100%;
-  .wrapper {
-    width: 80%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-  }
-  .image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    img {
-      width: 100%;
-    }
-  }
-  .title {
-    width: 80%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    font-size: 1.4rem;
-    font-family: Helvetica;
-  }
-  .text_wrapper {
-    h2 {
-      font-size: 1.6rem;
-      margin: 0 0 1.5rem 0;
-    }
-    h3 {
-      margin: 0 0 0.55rem 0;
-      border-bottom: 1px solid #efefef;
-      padding-bottom: 0.75rem;
-    }
-    p {
-      font-size: 1.1rem;
-      margin: 0;
-      line-height: 1.7rem;
-      .emoji {
-        display: inline-block;
-        width: 1em;
-        height: 1em;
-        position: relative;
-        top: 0.1em;
-      }
-    }
-    img:not(.emoji) {
-      border-radius: 6px;
-      background: #efefef;
-      margin: 1rem 0 0 0;
-      width: 85%;
-    }
-  }
-}
-
-.section.header {
-  // margin-top: 4rem;
-  min-height: 120px;
-  border-bottom: 1px solid #ddd;
-  padding: 6rem 0 3rem;
-  display: flex;
-  justify-content: center !important;
-  .wrapper {
-    align-items: center;
-    justify-content: flex-starts !important;
-    margin: 0 auto;
-  }
-  .image {
-    width: 30%;
-    margin-right: 2rem;
-    img {
-      width: 100%;
-    }
-  }
-  .text {
-    font-family: Helvetica;
-    .hero_title {
-      font-size: 1.5rem !important;
-    }
-    h2 {
-      margin: 0 0 1rem 0;
-      padding: 0 0 1rem 0;
-      border-bottom: 1px solid #ddd;
-    }
-    p {
-      font-size: 1.4rem !important;
-      margin: 0 0 0.5rem 0;
-      line-height: 2rem;
-    }
-  }
-}
-
-.section.content {
-  .wrapper {
-    .image + .text {
-      margin-left: 3rem;
-    }
-    .text + .image {
-      margin-left: 3rem;
-    }
-  }
-  .text {
-    .horizontal {
-      display: flex;
-      div + div {
-        margin-left: 3rem !important;
-      }
-    }
-    .topic {
-      p img {
-        width: auto !important;
-        margin: 0 !important;
-        max-width: 100%;
-      }
-      p + h3 {
-        margin-top: 1.5rem;
-      }
-      p + p {
-        margin-top: 1rem;
-      }
-      ol,
-      ul {
-        margin: 1rem 0;
-        padding: 0 0 0 1.3rem;
-        line-height: 1.75rem;
-        font-size: 1.05rem;
-      }
-      blockquote {
-        background: #fafafa;
-        border-left: 2px solid #ddd;
-        margin: 1rem 0 1.5rem;
-        padding: 10px 15px 10px;
-        p {
-          margin: 0;
-        }
-      }
-    }
-    .emphasis {
-      padding: 40px;
-      background: #fafafa;
-    }
-  }
-}
-
-body {
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.view {
-  width: 100%;
-}
-
-.view + .view {
-  margin-left: 3rem;
-}
-
-.form {
-  margin-bottom: 1.5rem;
-  h3 {
-    font-size: 1.3rem;
-    margin: 0 0 1rem 0;
-    margin: 0 0 0.55rem 0;
-    border-bottom: 1px solid #efefef;
-    padding-bottom: 0.75rem;
-  }
-  p {
-    font-size: 1.1rem;
-    margin: 0;
-    line-height: 1.7rem;
-    .emoji {
-      display: inline-block;
-      width: 1em;
-      height: 1em;
-      position: relative;
-      top: 0.1em;
-    }
-  }
-  .fields {
-    margin-top: 1.5rem;
-  }
-  .field {
-    margin: 0 0 1rem 0;
-    *:focus {
-      outline: none;
-      border: 1px solid #000;
-      background: #fafafa;
-    }
-    input,
-    textarea {
-      width: 96%;
-      padding: 1rem;
-      border: 1px solid #ddd;
-      font-size: 0.95rem;
-      color: #000 !important;
-      font-weight: bold;
-    }
-    h3 {
-      font-size: 1.1rem;
-      border: none;
-      margin: 0;
-    }
-    p {
-      font-size: 1rem !important;
-      line-height: 1.2rem;
-      margin-bottom: 1rem;
-    }
-    button {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      padding: 0.7rem 1rem;
-      background: white;
-      margin-right: 0.5rem;
-    }
-  }
-}
-
-.create_account {
-  h3 {
-    font-size: 1.2rem;
-    border: none;
-    margin-bottom: 0;
-  }
-  input {
-    padding: 0.7rem;
-    width: 93.6%;
-  }
-  .terms {
-    display: flex;
-    background: #fafafa;
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 96%;
-    align-items: center;
-    p {
-      margin: 0 0 0 10px;
-    }
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .section {
-    padding: 2rem 0 20px;
-    .title {
-      font-size: 1.2rem;
-      * {
-        margin: 0 0 1.5rem;
-      }
-    }
-    &.header {
-      margin-bottom: 0;
-    }
-    .view + .view {
-      margin-left: 0rem;
-      margin-top: 2rem;
-    }
-    .wrapper {
-      flex-direction: column;
-      .text {
-        margin-left: 0rem;
-        p img:not(.emoji) {
-          width: 100%;
-        }
-      }
-      .image {
-        margin-left: 0rem;
-      }
-    }
-  }
-  .section.content .text .horizontal {
-    flex-direction: column !important;
-    div + div {
-      margin-left: 0;
-      margin-top: 2rem;
-    }
-  }
-  .form {
-    .field {
-      input,
-      textarea {
-        width: 90%;
-        padding: 1rem;
-        border: 1px solid #ddd;
-        font-size: 0.95rem;
-        color: #000 !important;
-        font-weight: bold;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

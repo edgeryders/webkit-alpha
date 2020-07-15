@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "hooper": "^0.3.4",
     "markdown-it": "^11.0.0",
     "markdown-it-attrs": "^3.0.2",
     "markdown-it-emoji": "^1.4.0",
@@ -19,9 +20,13 @@
     "twemoji": "^13.0.0",
     "vue": "^2.6.11",
     "vue-headful": "^2.1.0",
+    "vue-kinesis": "^1.1.5",
     "vue-parallax-js": "^0.2.3",
     "vue-parallaxy": "^1.1.1",
+    "vue-resize-observer": "^1.0.32",
+    "vue-responsive-components": "^0.2.3",
     "vue-scroll": "^2.1.13",
+    "vue-tilt.js": "^1.1.1",
     "yaml-loader": "^0.6.0",
     "yamljs": "^0.3.0"
   },

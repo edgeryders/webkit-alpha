@@ -1,5 +1,5 @@
 ---
 baseUrl: https://edgeryders.eu
 title: Webkit Sandbox
-mode: local
+mode: sandbox
 template: template.md

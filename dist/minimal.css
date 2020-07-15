@@ -1,0 +1,36 @@
+.section.content .view {
+  width: 100%;
+}
+
+.section.header .wrapper {
+  background: none;
+  width: 80%;
+  max-width: 1220px;
+}
+.section.header .wrapper .text_wrapper .text_content {
+  width: 100%;
+}
+.section.header .wrapper .text_wrapper .text_content {
+  width: 90%;
+}
+.section.content .title {
+  width: 90%;
+}
+
+@media only screen and (max-width: 600px) {
+  .menu .title {
+    border-bottom: none !important;
+  }
+  .section .view + .view {
+    margin: 0 !important;
+  }
+  .section.content .text .horizontal div + div {
+    margin: 0 !important;
+  }
+  .section.header {
+    height: auto !important;
+  }
+  .header_image {
+    height: 60vh !important;
+  }
+}
