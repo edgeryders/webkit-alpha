@@ -24,8 +24,8 @@
                 :style="{ background: 'url(' + item.image + ')' }"
               >
                 <div class="item_info">
-                  <h2>{{ item.title }}</h2>
-                  <p>{{ item.text.substring(0, 150) }}...</p>
+                  <h2>{{ item.title || item.username }}</h2>
+                  <p v-if="item.text">{{ item.text.substring(0, 150) }}...</p>
                 </div>
               </div>
             </kinesis-element>
@@ -33,12 +33,12 @@
         </div>
       </div>
     </div>
-    <List v-if="display == 'mobile'" class="list_template" :items="items" />
+    <List v-if="display == 'mobile'" class="list_template" :items="items" :view="view" />
   </div>
 </template>
 
 <script>
-import List from "@/components/views/List.vue";
+import List from "@/components/views/List";
 export default {
   name: "Grid",
   data() {

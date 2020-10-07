@@ -1,13 +1,14 @@
 <template>
   <div class="blog" v-resize="onResize">
-    <div
+    <masonry
+      :cols="getColumns()"
+      :gutter="40"
       class="blog_container"
-      v-if="viewport == 'desktop'"
-      :style="{ columns: getColumns() }"
-    >
+       v-if="viewport == 'desktop'"
+      >
       <div
         class="blog_entry"
-        v-for="(item, index) in items.slice(0, item_count)"
+        v-for="(item, index) in items.slice(count, count + Number(view.config.items))"
         :key="index"
       >
         <a :href="item.url" target="_blank">{{ item.title }}</a>
@@ -21,14 +22,14 @@
         </div>
         <div class="entry_text " v-html="item.text"></div>
       </div>
-    </div>
-    <List v-if="viewport == 'mobile'" class="list_template" :items="items" />
+    </masonry>
+    <List v-if="viewport == 'mobile'" class="list_template" template="blog" :items="items" :view="view" />
   </div>
 </template>
 
 <script>
 import Event from "@/components/elements/Event.vue";
-import List from "@/components/views/List.vue";
+import List from "@/components/views/List";
 import User from "@/components/elements/User.vue";
 import moment from "moment";
 export default {
@@ -38,9 +39,10 @@ export default {
       viewport: "desktop",
       display: null,
       item_count: null,
+      width: 'hello'
     };
   },
-  props: ["view", "items", "users"],
+  props: ["view", "items", "users", "count"],
   methods: {
     getAuthor(userid) {
       return this.users.filter((x) => x.id == userid)[0].username;
@@ -53,7 +55,7 @@ export default {
       }
     },
     onResize({ width, height }) {
-      if (width < 500) {
+      if (width < 600) {
         this.viewport = "mobile";
       } else {
         this.viewport = "desktop";
@@ -62,7 +64,8 @@ export default {
   },
   mounted() {
     var width = this.$el.offsetWidth;
-    if (width < 500) {
+    this.width = width;
+    if (width < 700) {
       this.viewport = "mobile";
     } else {
       this.viewport = "desktop";
@@ -93,6 +96,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.blog {
+  position: relative;
+}
 .blog_container {
   column-gap: 50px;
 }
@@ -102,26 +108,25 @@ export default {
   margin-bottom: 3rem;
   a {
     font-size: 1.2rem;
-    text-decoration: none;
+    text-decoration: underline;
     font-weight: bold;
     display: inline-block;
     color: black;
     width: 100%;
-    padding-bottom: 1rem;
+    padding-bottom: .5rem;
     &:hover {
-      text-decoration: underline;
-    }
+    color: orangered;
+  }
   }
   .entry_meta {
     display: inline-flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 4px;
-    margin: 0rem 0 1rem;
-    padding: 0.1rem 1rem 0 .85rem;
+    margin: 0 0 1rem;
     width: auto;
-    color: rgba(0, 0, 0, 0.9);
-    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 1rem;
+    .entry_date {
+    }
     /deep/ {
       .user_info {
         border: 1px solid #efefef;
@@ -135,10 +140,9 @@ export default {
       }
       .user_name a {
         background: none;
-        font-size: 0.9rem;
+        font-size: 1rem;
         padding: 0 !important;
         margin-right: .35em;
-        color: black !important;
       }
     }
   }

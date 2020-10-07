@@ -4,9 +4,6 @@
     <div :class="{'horizontal': content.length > 1 }">
       <component class="text_content" v-for="(test, index) in content" v-bind:is="parse(test)" :key="index"></component>
       <div v-if="topic_text" v-html="topic_text" class="topic"></div>
-      <div v-if="links" class="links">
-        <a class="text_link" v-for="link in links" :href="link.url" :style="link.style" target="_blank">{{link.text}}</a>
-      </div>
     </div>
   </div>
 </template>

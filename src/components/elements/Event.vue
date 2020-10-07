@@ -1,7 +1,9 @@
 <template>
-  <div class="card">
+  <div class="event_card">
+    <a class="event_date" v-if="data.start" target="_blank" :href="data.url">{{ data.start | formatDate }}</a>
     <a class="event_title" target="_blank" :href="data.url">{{ data.title }}</a>
-    <div class="event_excerpt" v-html="data.text"></div>
+    <img :src="data.image" v-if="data.image" class="event_image" />
+    <div class="event_text" v-html="data.text"></div>
     <div class="event_footer">
       <a class="comments" :href="data.url" target="_blank">
         Discussion
@@ -15,6 +17,8 @@
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   name: "Event",
   props: {
@@ -26,11 +30,16 @@ export default {
     };
   },
   methods: {},
+  filters: {
+    formatDate: function(value) {
+      return moment(String(value)).format("dddd, MMMM Do YYYY");
+    },
+  }
 };
 </script>
 
 <style scoped lang="scss">
-.card {
+.event_container {
   display: inline-block;
   flex-direction: column;
   width: 90%;
@@ -84,13 +93,25 @@ export default {
   }
 }
 
-.card {
+.event_container {
   overflow: hidden;
   .event_title {
-    width: 90%;
+    width: 100%;
     padding: 0;
     text-decoration: none;
+    color: black;
     font-weight: bold;
+  }
+  .event_date {
+    width: 100%;
+    display: block;
+    padding: .65rem 0 0;
+    margin-top: .7rem;
+    text-decoration: none;
+    color: rgba(0,0,0,0.8);
+    font-size: .85rem;
+    font-weight: bold;
+    border-top: 1px solid #ddd;
   }
   .event_footer {
     border-top: 1px solid #efefef;

@@ -1,0 +1,166 @@
+.wk_menu {
+  color: white !important;
+  .menu_logo {
+    @apply ml-2;
+  }
+  .menu_links {
+    @apply mr-3;
+  }
+}
+
+.section.header {
+  border-bottom: 1px solid #ddd !important;
+  .wrapper {
+    @apply flex items-center mx-auto;
+    max-width: 1280px;
+    padding-top: 5rem;
+    padding-bottom: 1.5rem;
+    width: 70%;
+    .text_wrapper {
+      max-width: 60%;
+      .text_title {
+        @apply mb-3;
+        h2 {
+          @apply font-bold text-4xl;
+        }
+      } 
+      .text_content {
+        p {
+         @apply text-2xl;
+        }
+      }
+    }
+  }
+}
+
+.view {
+  width: 100% !important;;
+}
+
+iframe {
+  margin-top: -1rem;
+}
+
+.menu {
+  .links {
+    a {
+      font-weight: bold !important;
+    }
+  }
+}
+
+.view.text {
+  ul {
+    li {
+      list-style: square;
+    }
+  }
+}
+
+.section.content {
+padding: 4.5rem 0!important;
+.title {
+  max-width: 1280px;
+  @apply mx-auto font-bold mb-4;
+  width: 70%;
+}
+.views {
+  @apply mx-auto flex;
+  width: 70%;
+  max-width: 1280px;
+  .view {
+      @apply mx-auto flex items-start;
+      max-width: 1280px;
+      .videoWrapper {
+        margin-bottom: -1rem;
+      }
+      &.form {
+        .form {
+          max-width: 700px;
+          p {
+          font-size: 1.25rem;
+          font-weight: normal;
+        }
+        }
+      }
+      &.text {
+        .text_wrapper {
+          a {
+            text-decoration: underline;
+          }
+          .text_content + .text_content {
+            margin-left: 2rem;
+          }
+          &.single {
+            width: 100%;
+            max-width: 700px;
+          }
+        }
+        p {
+          @apply text-xl mb-4;
+        }
+      }
+    }
+  } 
+}
+
+.section.footer {
+  margin-top: 30px;
+}
+
+@media only screen and (max-width: 600px) {
+
+
+
+.section .view + .view {
+  margin: 0;
+}
+
+.header_image, .section.header {
+  height: 90vh;
+}
+
+.section.header {
+  @apply items-end;
+  .wrapper {
+    width: 100%;
+    padding: 0;
+    .text_wrapper {
+      padding: 7.5% !important;
+      width: 100% !important;
+      max-width: 100%;
+      background: rgba(0,0,0,1);
+      p {
+        @apply leading-tight;
+      }
+    }
+  }
+}
+
+.section.content {
+  padding: 3rem 0!important;
+  .title {
+    width: 85%;
+  }
+  .views {
+    width: 100%;
+    @apply block;
+    .view {
+      &.text {
+        width: 85% !important;
+        @apply mx-auto;
+        .single {
+          padding: 0 !important;
+        }
+        .horizontal {
+          display: inline-block !important;
+          .text_content {
+            margin: 0 !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+}

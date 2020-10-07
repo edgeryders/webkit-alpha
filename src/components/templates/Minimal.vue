@@ -54,7 +54,7 @@
 var YAML = require('yamljs');
 
 import TextView from '@/components/views/Text.vue'
-import FormView from '@/components/views/Form.vue'
+import FormView from '@/components/views/Form'
 
 export default {
   name: "Minimal Template",

@@ -1,162 +1,121 @@
 <Webkit>
 
----
-
 <Config>
 
 ```
+
 site:
-  title: Edgeryders | Resilient Livelihoods
-  template: edgeryders
+  title: Sci-Fi Economics Lab
   lang: en-US
-  theme: edgeryders
+  theme: econ
 menu:
-  anchor: true
+  edgeryders:
+    icon: classic
+    color: #fff
+    url: https://edgeryders.eu
+  other:
+    icon: http://edgeryders.eu/uploads/default/original/2X/6/682c28093030b12dd48125c7622a2fbec9660f7c.png
+    size: 25px
+    color: #fff
+    url: https://edgeryders.eu
+  links:
+    anchor: true
+    fade: true
 header:
-  image: https://www.noc.ac.uk/files/images/story/Dan%20Grinwis%20image_.jpg
-  position: 0 -300px
+  image: /visual-frontpage.jpg
+  position: 0 -400px
   social: ['url', 'twitter', 'facebook', 'linkedin', 'email']
+  blur: true
 
 ```
 
 </Config>
 
-<Menu>
+<Menu style="background-color: rgba(0,0,0,0.4)">
 
-## Programs
+## Sci-Fi Economics Lab
+
+[About the lab](https://scifieconomicslab.net){style="border: 1px solid white; color: white; border-radius: 20px; padding: 11px 14px; font-weight: bold; font-size: .9rem;" class="test"}
 
 </Menu>
 
-<Header>
+<Header style="background: url('/visual-frontpage.jpg') no-repeat; background-size: cover; background-attachment: fixed; background-position: 0 -400px">
 
-<!-- XML comment here -->
+<Text style="background: rgba(0,0,0,0.8); color: white; padding: 30px 4%; width: 70vw">
 
-<Text>
+Sci-Fi Economics Live Event{style="font-size: 1.8em; font-weight: bold"}
 
-## Resilient Livelihoods
+In November 2019, Sci-Fi authors and economists got economic thinking out of its box.{style="line-height: 2.2rem; margin-top: .3rem"}
 
-Register your interest now for the Resilient Livelihoods program, coordinated by Edgeryders.{style="width: 70%"}
-
-3 June - 23 December {class="event_date"}
-
-Multiple locations + Online {class="event_location"}
-
-Free of Charge {class="event_other"}
+<a class="partner_logo" href="http://climate-kic.org" target="_blank">
+<img src="/logos/climate_kic_white.png" link="https://www.climate-kic.org" />
+</a>
 
 </Text>
 
 </Header>
 
-<Section id="About" style="padding: 80px 0 30px">
+<Content>
 
 <Text>
 
-![image|100x100](/connection.svg){style="max-width: 350px; margin-top: 30px"}
+In 2019, to highlight the synergies between Science Fiction and economics, the [Edgeryders](https://edgeryders.eu) community supported by [EIT Climate-KIC](http://climate-kic.org) organised a major day of debates, workshops and celebrations open to all.{style="font-weight: bold; font-size: 1.5rem"}
 
-This initiative is for you if you are interested in co-creating Ecosystems of economic resilience and regeneration, that place the reins to shared prosperity firmly in your hands.{class="info"}
+[Extinction Rebellion](https://extinctionrebellion.uk) joined forces with the [Sci-Fi Economics Lab](http://scifieconomicslab.net) to discuss and create positive progress. Science fiction author [Cory Doctorow](https://craphound.com), economist [Tom Bauler](http://www.transitsocialinnovation.eu/researchers--partners/tom-bauler), and the CEO of EIT Climate-KIC [Kirsten Dunlop](https://www.climate-kic.org/who-we-are/executive-board/) discussed how sci-fi and economics can give revamp our ability to rethink our economy. We met with academics and brainstorm topics for academic articles to be published in 2020.
+
+To catch up on the discussion, check out the recording of our live panel discussion with Cory Doctorow, Tom Bauler and Kirsten Dunlop.
+
+</Text>
+
+<Text>
+
+https://www.youtube.com/watch?v=klH0QbIhBEg
+
+Live panel discussion with Cory Doctorow, Tom Bauler and Kirsten Dunlop.{style="color: rgba(0,0,0,0.7); font-weight: bold; font-size: 15px"}
+
+</Text>
+
+</Content>
+
+<Content style="background: url('/network.jpg') #fafafa; background-position: 45vw 0; background-repeat: no-repeat;">
+
+## Thank you
+
+<Text style="padding-right: 130px">
+
+We would like to thank all the contributors to the crowdfunding campaign who made this possible. Without them this event would not have been possible. 
+
+</Text>
+
+</Content>
+
+
+
+<Content style="background: #fafafa;">
+
+  ## Contributors
+
+<Text>
+
+Riyong Kim, Ke'Aun Charles, Abaca Games, Mark Finnern, Märt Põder, Pat Kane, Giuseppe Borsalino, Joeri Gydé, Alorah M. Harman, Joseph DCruz, Jozef Cossey, Michael Morel, Lotte Houwing, Esther Crabbendam, Nik Gaffney, Giulio Bordonaro, Alessio Vasta, Mark Finnern, Jason Cole, Kelly Curtis, Janne Korhonen, Jan Tiedemann, Herman Wagter, Arianna Cecchi, Henri Laupmaa, Gaye Soykok, Barry Wickenden, Kim Cappart, Gallais Georges, Ton Zijlstra, f.sestini, Carsten Schmitt, Eirini Malliaraki, Jason Cole, Cathy Brown, Christopher Harris, ari.wallach, tomelsner, Tamara Foubert,
+Francois Julie, Valerie Andrews, Andrew Brook, Simona Montanari, Cristina Varela, Carmen Polcaro, Vittoria Bandini, Paulo Alves, Phillip Procyk{style="font-size: 16px"}
 
 ---
 
-# About
-
-We want to secure resilient lives and livelihoods for us the 99.999%, especially in the face of systemic shocks like the COVID-19 pandemic and the ever-advancing climate crisis. To that end, this program is a series of activities aimed at discovering and co-creating experimental new social, economic and business models. A reframing of livelihood generation from a lonely, competitive activity, to one that is collaborative, sustainable and accessible to all. The perfect time and place to 'find the others', and grow personally, professionally and socially.
-
-[Register your interest now to join us online and at a location near you.](https://airtable.com/shrSqdOdBW9JWYo3T)
-</Text>
-
-</Section>
-
-<Section>
-
-<Text>
-
-<a href="https://start.edgeryders.eu/" target="_blank">
-<img src="https://edgeryders.eu/uploads/default/original/2X/1/1e9204278b3244f1e653856624fbe548e0a0f0ed.png" style="width: 30%" />
-</a>
-
-<img src="https://edgeryders.eu/uploads/default/original/2X/7/786871cbd5fcca164ca95dd52507e665d6aa9d5d.png" style="width: 30%" />
-
-<a href="https://edgeryders.eu/c/campfire" target="_blank">
-<img src="https://edgeryders.eu/uploads/default/original/2X/8/8feaed1c0e0a63bd7ed41aa07f7f9355de13efc1.png" style="width: 30%" />
-</a>
-
----
-
-## The Resilient Livelihoods program is organised by Edgeryders, in collaboration with...you. {style="font-weight: bold; font-size: 1.3rem; line-height: 2rem"}
-
-It forms part of Edgeryders mission to support work towards more resilient futures. You can [learn more about Edgeryders here](https://edgeryders.eu/t/about-us/13524) and follow our policy and strategy work at the [Edgeryders research institute](https://research.edgeryders.eu/).
+Matthew Alexander, Paweł Krawczyk, Ramsey Haddad, Sarah Allen, Derek Horstmeyer, lee.hosan, Georgios Georgiadis, Tommaso Dradi, anne currie, Martin Bohle, Carlo Cottica, David Rinaldi, Johannes Ernst, Michelle Greenwood, Ben Gansky, Kira Van den Ende, Jean M Russell, stefano daelli, Alessandra Farabegoli, Graham Boyd, Ilaria Vitellio, nik gaffney, Filippo Barbera, Ida Leone, Neil Reeder, Dana Fell, Mark Hutchinson, nic, Eckhard Stoermer, Leina Mestrovic, Daniel Kaplan, Nicholas Butta, Anders Rune Jensen, Rieki Cordon, Dietmar Pohland, Francesco Mureddu, tex, Matthias Ansorg, David ten Have, Geoff Becker, Phillip Tussing, Hanna Carlsson, Augusto Pirovano, Angelo Di Mambro, barbara.renaux, Ton Zijlstra, joannestruyens{style="font-size: 16px"}
 
 </Text>
 
-</Section>
+</Content>
 
-<Section id="Participants">
+<Content id="Send us your feedback">
 
-# Featured Participants
+## Event Feedback
 
-<Grid template="people" data="14036" />
+<form data="14539" />
 
-</Section>
+</Content>
 
-<Section id="Topics">
-
-# Topics
-
-<Text>
-
-Participants are exploring **experimental models** for the future of making a living, prepare policymakers and activists as well as **strengthen ecosystems** across key topics. Click a topic to find out more and join in a discussion on our Community Platform.{style="width: 70%"}
-
-</Text>
-
-<Cards template="topics" tag="webcontent-edgeryders-summit-2020-topics" />
-
-</Section>
-
-<Section id="Events">
-
-# Events
-
-<Grid template="events" tag="covid19-event" />
-
-</Section>
-
-<Section id="Join">
-
-<Text>
-
-# Join our community
-
-What does it mean to build resilient livelihoods? Who is already doing promising work? What is missing in order for them to live up to their full potential? Join the conversation ahead of the Summit and connect with peers experimenting alternatives around the globe.{style="width: 75%"}
-
-Sign up to create an account on the community platform, hosted by Edgeryders.
-
-[Sign up to join the community](https://edgeryders.eu/c/campfire){class="action" style="background: rgb(255, 219, 106)"}
-
-</Text>
-
-</Section>
-
-<Section id="Community">
-
-# Community Conversations
-
-<Slider tag="edgeryders-summit-conversations"/>
-
-</Section>
-
-<Section id="Support our Work">
-
-<Text>
-
-# You can help
-
-**Get in touch.** Edgeryders can support the work of changemakers in more than 80 countries because people like yourself support us with knowledge, contacts and resources.{style="width: 75%"}
-
-[Email](mailto:nadia@edgeryders.eu){class="action" style="background: rgb(255, 219, 106)"}
-[Telegram](https://t.me/edgeryders){class="action" style="background: rgb(26, 145, 218); color: rgb(255, 255, 255)"}
-
-</Text>
-
-</Section>
+<Footer template="climate_kick">
 
 </Webkit>

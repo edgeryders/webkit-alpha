@@ -1,15 +1,27 @@
 <template>
-  <div class="events" v-resize="onResize">
-    <div class="grid" v-if="display == 'desktop'">
-      <Event v-for="(item, index) in items" :key="index" :data="item" />
-    </div>
-    <List v-if="display == 'mobile'" class="list_template" :items="items" />
+  <div class="events" v-if="item_count">
+    <input class="events_search" placeholder="search events" v-model="search" />
+      <masonry
+      :cols="3"
+      :gutter="40"
+      class="grid"
+       v-if="display == 'desktop'"
+      >
+        <Event v-for="(item, index) in filteredItems.slice(
+            index,
+            index + item_count
+          )" :key="index" :data="item" />
+      </masonry>
+      
+      <List v-if="display == 'mobile'" template="blog" class="list_template" :items="items" :view="view" />
+
+    <resize-observer @notify="onResize" />
   </div>
 </template>
 
 <script>
 import Event from "@/components/elements/Event.vue";
-import List from "@/components/views/List.vue";
+import List from "@/components/views/List";
 
 export default {
   name: "Events",
@@ -18,24 +30,66 @@ export default {
       events: null,
       events2: null,
       display: "desktop",
+      item_count: 8,
+      index: 0,
+      search: ''
     };
   },
   props: ["view", "items"],
   methods: {
+    handleResize ({ width, height }) {
+      console.log('resized', width, height)
+    },
     onResize({ width, height }) {
-      if (width < 500) {
+      if (width < 800) {
         this.display = "mobile";
       } else {
         this.display = "desktop";
       }
     },
+    previous() {
+      if (this.index - this.item_count < 0) {
+        this.index = this.item_count;
+      } else {
+        this.index = this.index - this.item_count;
+      }
+    },
+    next() {
+      if (this.index + this.item_count >= this.items.length) {
+        this.index = 0;
+      } else {
+        this.index = this.index + this.item_count;
+      }
+    },
   },
   mounted() {
     var width = this.$el.offsetWidth;
+
     if (width < 500) {
       this.display = "mobile";
     } else {
       this.display = "desktop";
+    }
+    if (this.items.length) {
+      this.item_count = this.itemsLength;
+    }
+    if (this.view.config.items) {
+      this.item_count = Number(this.view.config.items);
+    } 
+  },
+  computed: {
+    filteredItems() {
+      if (this.items) {
+        var self = this;
+        return this.items.filter(item => {
+           return item.title && item.title.toLowerCase().includes(this.search)
+        })
+      }
+    },
+    itemsLength() {
+      if (this.items) {
+        return this.items.length
+      }
     }
   },
   components: {
@@ -47,12 +101,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.events {
+  position: relative
+}
 .events .grid {
   width: 100%;
   position: relative;
   margin: 10px auto 0;
-  column-count: 3;
+  column-count: 4;
   column-gap: 1.5rem;
+   .grid_options {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    top: -80px;
+    right: 10px;
+  }
   .event {
     display: inline-block;
     border: 1px solid #ddd;
@@ -62,17 +127,7 @@ export default {
     .event_title {
     }
   }
-  .grid_options {
-    position: absolute;
-    top: -60px;
-    right: 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .grid_navigation {
-      display: flex;
-    }
-  }
+
   .grid_text {
     width: 92%;
     margin: 0 auto 2rem;

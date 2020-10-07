@@ -1,0 +1,88 @@
+
+p.introduction {
+  @apply text-3xl pr-20 pt-4 font-bold leading-tight;
+  color: white;
+} 
+
+
+.events_search {
+  @apply border-2 p-3 font-bold;
+  color: rgba(0,0,0,0.8) !important;
+  border-radius: 4px;
+  min-width: 500px;
+  &:focus {
+    outline: none;
+  }
+}
+
+.section {
+  width: 100vw;
+  overflow-x: hidden;
+  background: white;
+  &.header {
+    @apply flex items-center justify-center pt-20;
+    height: 500px !important;
+    .wrapper {
+      @apply flex py-8 mx-auto items-center;
+      width: 80%;
+      .text_wrapper {
+        &.action {
+          @apply pt-4 pb-8 pl-10 pr-20 ml-10 font-bold border-l-4;
+          width: 500px; 
+          font-weight: 400;
+          flex-shrink: 0;
+           .text_content {
+            p {
+              @apply text-xl font-bold;
+            }
+            .action {
+              @apply rounded-sm text-base p-3 inline-block;
+              background: orangered;
+              color: white;
+            }
+          }
+        }
+        .text_title {
+          h2 {
+            @apply font-bold mb-0;
+          }
+        }
+        .text_content {
+          @apply mt-0;
+          h3 {
+            @apply text-3xl font-bold leading-tight;
+            color: rgba(0,0,0,0.8);
+          }
+          p {
+            @apply text-2xl mt-4;
+          }
+          
+        }
+      }
+    }
+  }
+}
+
+.event_card {
+  @apply shadow-sm mb-8 pt-4;
+  border-radius: .75rem;
+  .event_title {
+    @apply font-bold text-lg mb-0 inline-block px-4;
+  }
+  .event_date {
+    @apply font-bold text-lg block px-4 mb-1;
+    color: orangered;
+  }
+  .event_image {
+    @apply mt-3 mb-2 inline-block;
+  }
+  .event_text {
+    @apply text-base block px-4 mt-2;
+  }
+}
+
+.section.content {
+  .title {
+    @apply font-bold;
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="theme">
     <component
       :is="activeTemplate"
       :blocks="blocks"
@@ -30,6 +30,7 @@ export default {
       blocks: null,
       config: null,
       stylesheet: null,
+      pathname: null,
       data: {
         config: null,
         blocks: null,
@@ -104,24 +105,7 @@ export default {
         return obj;
       }
 
-      if (name == "form") {
-        obj["title"] = this.parseTitle(html);
-        obj["fields"] = [];
-        var formtext = this.parseTextOnly(view.childNodes[0].textContent);
-        if (formtext) {
-          obj["text"] = formtext;
-        }
 
-        var fields = view.querySelectorAll("Field");
-
-        for (var x = 0; x < fields.length; x++) {
-          var field = this.getAttributes(fields[x]);
-          field["text"] = md.render(fields[x].textContent);
-          obj["fields"].push(field);
-        }
-
-        return obj;
-      }
 
       if (name == "image") {
         var imageUrl = this.regexMatch(html, "url");
@@ -203,7 +187,7 @@ export default {
       if (name == "menu" || name == "header") {
         obj[name]["links"] = this.parseHeaderLinks(block.textContent);
       }
-
+      window.console.log(obj)
       return obj;
     },
     parseCode(text) {
@@ -285,6 +269,7 @@ export default {
           text: links[i].textContent,
           url: links[i].getAttribute("href"),
           style: links[i].getAttribute("style"),
+          class: links[i].getAttribute("class"),
         };
         urls.push(obj);
       }
@@ -357,7 +342,6 @@ export default {
       var cleant_text = text.replace(regex, "&amp;");
       var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
       var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
-
       var array = [];
       for (var x = 0; x < blocks.length; x++) {
         if (blocks[x].nodeName !== "#text" && blocks[x].nodeName !== "Config") {
@@ -366,6 +350,16 @@ export default {
         }
         if (blocks[x].nodeName === "Config") {
           this.config = this.parseCode(blocks[x].textContent);
+          if (this.config.site.title) {
+            this.sendAnalytics(this.pathname + ' - ' + this.config.site.title)
+          } else {
+            this.sendAnalytics('/' + this.pathname)
+          }
+          if (this.config.site && this.config.site.theme) {
+            this.loadThemeLocal(this.config.site.theme);
+          } else {
+            this.loadThemeLocal('event');
+          }
           if (this.config.site && this.config.site.template) {
             if (this.config.site.template.toLowerCase() == "campaign") {
               this.activeTemplate = "edgeryders";
@@ -375,15 +369,16 @@ export default {
               this.activeTemplate = this.config.site.template.toLowerCase();
             }
           }
-          if (this.config.site && this.config.site.theme) {
-            this.loadThemeLocal(this.config.site.theme);
-          } else {
-            this.loadThemeLocal('edgeryders');
-          }
+      
         }
       }
+console.log(array)
 
       return array;
+    },
+    sendAnalytics(siteName) {
+      window.console.log(siteName);
+      this.$ga.page(siteName);
     },
     type(obj) {
       return Object.keys(obj)[0];
@@ -429,24 +424,28 @@ export default {
       document.head.appendChild(file);
     },
     loadThemeLocal(theme) {
-      let link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.type = "text/css";
-      link.href = "/" + theme.toLowerCase() + ".css";
-      link.media = "all";
-      document.head.appendChild(link);
+      var selected_theme = theme;
+      if (theme.toLowerCase() == 'edgeryders') {
+        selected_theme = 'event';
+      }
+      this.theme = selected_theme + "_theme"
     },
     loadTemplateLocal(template) {
       var temp = require("./data/" + template);
+      window.console.log(temp.default)
       this.blocks = this.parseBlocks(temp.default);
     },
   },
   created() {
+    
     var temp = this.template;
     var config = this.configuration;
     var self = this;
-    var pathname = window.location.pathname.substring(1).replace("/", "");
+    var pathname = window.location.pathname.split('/')[1];
+    console.log(pathname);
+    this.pathname = pathname;
     var address = window.location.hostname;
+    console.log(address);
     var self = this;
 
     if (config.mode == "local") {
@@ -459,7 +458,7 @@ export default {
         .then((data) => {
           // var template = 13686;
           var template = 13799;
-
+          
           var directories = this.getYaml(data.post_stream.posts[0].cooked);
           var result = directories.filter(
             (x) =>
@@ -486,4 +485,21 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.event_theme {
+    @import '@/assets/event.scss';
+}
+
+.research_theme {
+    @import '@/assets/research.scss';
+}
+
+.default_theme {
+    @import '@/assets/econ.scss';
+}
+
+.econ_theme {
+    @import '@/assets/econ.scss';
+}
+
+</style>

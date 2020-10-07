@@ -1,7 +1,7 @@
 <template>
-  <div class="topics" v-resize="onResize">
-    <div class="topics_text" v-if="view.title || view.text">
-      <div class="topics_title title">{{ view.title }}</div>
+  <div class="cards" v-resize="onResize" v-if="items.length">
+    <div class="cards_text" v-if="view.title || view.text">
+      <div class="cards_title title">{{ view.title }}</div>
       <div v-html="view.text"></div>
     </div>
     <div class="row">
@@ -102,31 +102,35 @@ export default {
 </script>
 
 <style lang="scss">
-.topics {
-  .topics_text {
+.cards {
+    max-width: 1280px;
+    margin: 0 auto;
+  .cards_text {
     width: 80%;
     line-height: 1.75rem;
     font-size: 1.2rem;
     margin: 0 auto 1.5rem;
   }
 }
-.topics .row {
-  width: 100%;
-  max-width: 1420px;
-  margin: 0 auto;
+.cards .row {
+  width: 102%;
+  margin-left: -1%;
   position: relative;
   display: flex;
   justify-content: flex-start;
 
   .row_options {
-    position: absolute;
-    top: -45px;
-    right: 4%;
+    width: 100%;
+    max-width: 1520px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    position: absolute;
+    top: -60px;
+
     align-items: center;
     .row_navigation {
-      display: flex;
+      display: inline-flex;
+      width: auto;
     }
   }
   .item {

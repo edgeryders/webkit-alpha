@@ -4,9 +4,9 @@
       :title="config.site.title || 'Edgeryders'"
       :description="config.site.summary"
     />
-    <div class="menu">
+    <div class="wk_menu">
       <div class="menu_bg">
-        <div class="blur" :style="get('menu').style"></div>
+        <div class="blur" :style="get('menu').style" :class="{ disable_blur: getProp(config, 'header.blur') == false }"></div>
         <div
           class="header_image"
           v-if="getProp(config, 'header.image')"
@@ -21,7 +21,7 @@
         ></div>
       </div>
 
-      <span class="title">
+      <span class="menu_logo">
         <div v-if="getProp(config, 'menu.edgeryders.url')">
           <Menu
             :type="config.menu.edgeryders.icon || 'classic'"
@@ -32,16 +32,16 @@
           <Menu type="classic" color="white" />
         </div>
         <a :href="config.menu.other.url" v-if="getProp(config, 'menu.other')">
-          <img class="other_logo" :src="config.menu.other.icon" />
+          <img class="other_logo" :style="{height: config.menu.other.size}" :src="config.menu.other.icon" />
         </a>
         <h2 v-if="get('menu').title">{{ get("menu").title }}</h2>
       </span>
 
       <div
-        class="links"
-        :class="{ nofade: getProp(config, 'menu.links.fade') == false }"
+        class="menu_links"
+        :class="{ nofade: getProp(config, 'menu.fade') == false }"
       >
-        <div v-if="showAnchorMenu(config)" class="anchor">
+        <div v-if="getProp(config, 'menu.links.anchor') !== false" class="anchor">
           <a v-for="(link, index) in getNavElements(blocks)" :href="link.url">
             {{ link.text }}
           </a>
@@ -52,13 +52,14 @@
             :key="index"
             :href="link.url"
             :style="link.style"
+            :class="link.class"
             >{{ link.text }}</a
           >
         </div>
       </div>
     </div>
 
-    <div class="section header" id="test" :style="get('header').style">
+    <div class="section header" :style="get('header').style">
       <div
         class="header_image"
         v-if="getProp(config, 'header.image')"
@@ -74,7 +75,7 @@
 
       <div class="wrapper" v-if="get('header').views">
         <div v-for="(view, index) in get('header').views" :key="index">
-          <div class="image" v-if="view.type == 'image'" style="width: 300px">
+          <div class="image" v-if="view.type == 'image'" :style="view.style">
             <img :src="view.image.url" />
           </div>
           <TextView
@@ -85,6 +86,15 @@
             :config="view.config"
             :stylesheet="view.style"
           />
+          <Form
+              v-if="view.type == 'form'"
+              :title="view.title"
+              :text="view.text"
+              :fields="view.fields"
+              :config="view.config"
+            />
+          
+          
         </div>
       </div>
 
@@ -96,6 +106,8 @@
     </div>
 
     <div v-for="(block, index) in blocks" :key="index">
+
+
       <div
         v-if="type(block) == 'section'"
         class="section content"
@@ -121,6 +133,16 @@
             :class="view.type"
           >
             <div
+              v-if="view.type == 'title'"
+              class="title_view"
+            >
+
+            <h2 v-html="view.title"></h2>
+
+            <p v-html="view.text"></p>
+       
+            </div>
+            <div
               v-if="view.type == 'image'"
               :style="{ flexBasis: config.width }"
             >
@@ -134,28 +156,28 @@
             />
             <Form
               v-if="view.type == 'form'"
-              :title="view.title"
-              :text="view.text"
-              :fields="view.fields"
+              :view="view"
             />
             <Grid v-if="view.type == 'grid'" :view="view" />
             <Cards v-if="view.type == 'cards'" :view="view" />
             <Slider v-if="view.type == 'slider'" :view="view" />
+            <List v-if="view.type == 'table'" :view="view" />
 
             <Blog v-if="view.type == 'blog'" :view="view" />
           </div>
         </div>
       </div>
     </div>
-    <Footer />
+    <Footer :config="get('footer').config" />
   </div>
 </template>
 
 <script>
 var YAML = require("yamljs");
 import TextView from "@/components/views/Text.vue";
-import Form from "@/components/views/Form.vue";
+import Form from "@/components/views/Form";
 import Grid from "@/components/views/Grid";
+import List from "@/components/views/List";
 import Blog from "@/components/views/Blog";
 import Cards from "@/components/views/Cards";
 import Footer from "@/components/views/Footer";
@@ -184,6 +206,7 @@ export default {
     TextView,
     Form,
     Grid,
+    List,
     Blog,
     Cards,
     Slider,
@@ -277,7 +300,7 @@ export default {
       return Object.keys(obj)[0];
     },
     handleScroll(event) {
-      let menu = document.querySelector(".menu");
+      let menu = document.querySelector(".wk_menu");
       var height = 400;
       if (this.config && this.config.header && this.config.header.height) {
         height = this.config.header.height.match(/(\d+)/)[0] - 70;
@@ -285,7 +308,7 @@ export default {
       if (window.scrollY > height) {
         menu.classList.add("active");
       } else {
-        menu.className = "menu";
+        menu.className = "wk_menu";
       }
     },
   },
@@ -297,126 +320,6 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "@/assets/base.scss";
 
 
-/* Menu */
-.menu {
-  background: none;
-  width: 100%;
-  padding: 0;
-  top: 0;
-  position: fixed;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  .menu_bg {
-    width: 100%;
-    height: 70px;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    .blur {
-      position: absolute;
-      z-index: 99999;
-      top: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(0px);
-      transition: backdrop-filter 0s linear;
-    }
-    .header_image {
-      position: absolute;
-    }
-  }
-  .links {
-    position: relative;
-    display: flex;
-    margin-right: 10px;
-    z-index: 2;
-    opacity: 0;
-    transition: all 0s ease;
-    font-weight: bold;
-    &.nofade {
-      opacity: 1;
-    }
-    a {
-    font-size: 1.05rem;
-  }
-    .anchor + .external {
-      a:first-child {
-        border-left: 1px solid rgba(255, 255, 255, 0.2);
-      }
-    }
-  }
-  .title {
-    position: relative;
-    display: flex;
-    align-items: center;
-    z-index: 2;
-    padding: 0 1.2rem;
-
-    img {
-      margin-left: 0.75rem;
-    }
-    h2 {
-      font-size: 1.4rem;
-      margin-left: 0.75rem;
-    }
-  }
-  &.active {
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-    .links {
-      opacity: 1;
-      transition: all 1s ease;
-    }
-    .blur {
-      backdrop-filter: blur(10px);
-      transition: backdrop-filter 0.3s linear;
-    }
-  }
-}
-
-.header_image {
-  position: fixed;
-  height: 400px;
-  top: 0;
-  width: 100%;
-  background-size: 100% !important;
-  background-repeat: no-repeat !important;
-}
-
-
-@media only screen and (max-width: 600px) {
-  .section.content {
-    .wrapper {
-      .image + .text {
-        margin-left: 0rem !important;
-        margin-bottom: 2rem;
-      }
-      .text + .image {
-        margin-left: 0rem !important;
-        margin-bottom: 2rem;
-      }
-    }
-    .text {
-      .horizontal {
-        display: flex;
-        div + div {
-          margin-left: 0rem !important;
-          margin-bottom: 2rem;
-        }
-      }
-    }
-  }
-  .views {
-    .view + .view {
-      margin-left: 0rem !important;
-    }
-  }
-  .section.header {
-    padding: 0rem !important;
-  }
-}
 </style>
