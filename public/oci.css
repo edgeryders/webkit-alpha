@@ -1,0 +1,77 @@
+p.introduction {
+  @apply text-3xl pr-20 pt-4 font-bold leading-tight;
+  color: white;
+}
+
+.events_search {
+  @apply border-2 p-3 font-bold;
+  color: rgba(0, 0, 0, 0.8) !important;
+  border-radius: 4px;
+  min-width: 500px;
+}
+.events_search:focus {
+  outline: none;
+}
+
+.section {
+  width: 100vw;
+  overflow-x: hidden;
+  background: white;
+}
+.section.header {
+  @apply flex items-center justify-center pt-20;
+  height: 1000px !important;
+}
+.section.header .wrapper {
+  @apply block py-8 mx-auto items-center;
+  width: 80%;
+}
+.section.header .wrapper .text_wrapper.action {
+  @apply pt-4 pb-8 pl-10 pr-20 ml-10 font-bold border-l-4;
+  width: 500px;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+.section.header .wrapper .text_wrapper.action .text_content p {
+  @apply text-2xl font-bold;
+}
+.section.header .wrapper .text_wrapper.action .text_content .action {
+  @apply rounded-sm text-base p-3 inline-block;
+  background: orangered;
+  color: white;
+}
+.section.header .wrapper .text_wrapper .text_title h2 {
+  @apply font-bold mb-0;
+}
+.section.header .wrapper .text_wrapper .text_content {
+  @apply mt-0;
+}
+.section.header .wrapper .text_wrapper .text_content h3 {
+  @apply text-3xl font-bold leading-tight;
+  color: rgba(0, 0, 0, 0.8);
+}
+.section.header .wrapper .text_wrapper .text_content p {
+  @apply text-2xl mt-4;
+}
+
+.event_card {
+  @apply shadow-sm mb-8 pt-4;
+  border-radius: 0.75rem;
+}
+.event_card .event_title {
+  @apply font-bold text-lg mb-0 inline-block px-4;
+}
+.event_card .event_date {
+  @apply font-bold text-lg block px-4 mb-1;
+  color: orangered;
+}
+.event_card .event_image {
+  @apply mt-3 mb-2 inline-block;
+}
+.event_card .event_text {
+  @apply text-base block px-4 mt-2;
+}
+
+.section.content .title {
+  @apply font-bold;
+}
