@@ -1,32 +1,15 @@
 <template>
   <div class="container">
     <Special
-      v-if="newItems && view.config.template == 'books'"
       :view="view"
-      :items="newItems"
-    />
-
-    <Blog
-      v-if="template && template == 'blog'"
-      :items="newItems"
-      :view="view"
-      :users="users"
-    />
-
-    <Standard
-      v-else-if="view.config.template == 'standard'"
-      :items="newItems"
-      :view="view"
-      :users="users"
+      :items="items"
     />
 
   </div>
 </template>
 
 <script>
-import Standard from "./templates/Standard.vue";
 import Special from "./templates/Special.vue";
-import Blog from "./templates/Blog.vue";
 export default {
   name: "List",
   data() {
@@ -36,7 +19,6 @@ export default {
       users: null,
       topics: null,
       display: null,
-      newItems: null,
       index: 0,
       viewport: 'desktop',
       search: ''
@@ -97,7 +79,7 @@ export default {
       fetch("https://edgeryders.eu/raw/" + topicId + ".json")
         .then((response) => {
           response.text().then(function(text) {
-            self.newItems = self.parseJson(text).data;
+            self.items = self.parseJson(text).data;
           });
         })
         .catch((error) => console.error(error));
@@ -110,7 +92,7 @@ export default {
           .then((data) => {
             self.users = data.users;
             var array = data.topic_list.topics.map((x) => self.createItem(x));
-            self.newItems = array;
+            self.items = array;
           });
       }
       if (type == "category") {
@@ -119,15 +101,13 @@ export default {
           .then((data) => {
             self.users = data.users;
             var array = data.topic_list.topics.map((x) => self.createItem(x));
-            self.newItems = array;
+            self.items = array;
           });
       }
     }
   },
   components: {
-    Standard,
-    Special,
-    Blog
+    Special
   },
   props: ["view", "items", "template"],
 };

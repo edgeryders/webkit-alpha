@@ -2,20 +2,23 @@
   <div id="app" :class="theme">
     <component
       :is="activeTemplate"
-      :blocks="blocks"
+      :header="header"
       :config="config"
+      :blocks="blocks"
     ></component>
   </div>
 </template>
 
 <script>
 var YAML = require("yamljs");
+import { bus } from "@/main";
 
 import template from "./data/template.md";
 import configuration from "./data/config.yaml";
 
 import edgeryders from "./components/templates/Edgeryders.vue";
 import minimal from "./components/templates/Minimal.vue";
+import multisite from "./components/templates/Multisite.vue";
 
 export default {
   name: "App",
@@ -27,19 +30,24 @@ export default {
       configuration,
       title: null,
       links: null,
-      blocks: null,
+      blocks: [],
+      header: null,
+      menu: null,
+      footer: null,
+      childBlocks: null,
       config: null,
       stylesheet: null,
       pathname: null,
       data: {
         config: null,
-        blocks: null,
-      },
+        blocks: null
+      }
     };
   },
   components: {
     edgeryders,
     minimal,
+    multisite
   },
   methods: {
     getAttributes(element) {
@@ -105,13 +113,11 @@ export default {
         return obj;
       }
 
-
-
       if (name == "image") {
         var imageUrl = this.regexMatch(html, "url");
         if (imageUrl) {
           var image = {
-            url: imageUrl[0].replace(")", ""),
+            url: imageUrl[0].replace(")", "")
           };
           obj["image"] = image;
           if (style) {
@@ -127,6 +133,31 @@ export default {
         }
         return obj;
       }
+    },
+    createFooter(footer) {
+      var obj = {};
+      if (footer.hasAttributes()) {
+        var config = this.getAttributes(footer);
+        obj["config"] = config;
+      }
+
+      var viewNodes = footer.childNodes;
+
+      var views = [];
+      for (var x = 0; x < viewNodes.length; x++) {
+        var text = this.parseTextOnly(viewNodes[x].textContent);
+        views = text;
+      }
+
+      if (this.parseTitle(viewNodes[0].textContent)) {
+        var title = this.parseTitle(viewNodes[0].textContent, "text");
+        obj["title"] = title;
+        obj["subtitle"] = this.parseSubtitle(viewNodes[0].textContent);
+      }
+
+      obj["text"] = views;
+
+      return obj;
     },
     createBlock(block) {
       var name = block.nodeName.toLowerCase();
@@ -150,11 +181,19 @@ export default {
 
       var views = [];
       for (var x = 0; x < viewNodes.length; x++) {
-        if (viewNodes[x].nodeName !== "#text" && viewNodes[x].nodeName !== "#comment" && name !== "header") {
+        if (
+          viewNodes[x].nodeName !== "#text" &&
+          viewNodes[x].nodeName !== "#comment" &&
+          name !== "header"
+        ) {
           var view = this.createView(viewNodes[x], false);
           views.push(view);
         }
-        if (viewNodes[x].nodeName !== "#text"  && viewNodes[x].nodeName !== "#comment" && name === "header") {
+        if (
+          viewNodes[x].nodeName !== "#text" &&
+          viewNodes[x].nodeName !== "#comment" &&
+          name === "header"
+        ) {
           var view = this.createView(viewNodes[x], true);
           views.push(view);
         }
@@ -163,6 +202,7 @@ export default {
       if (this.parseTitle(viewNodes[0].textContent)) {
         var title = this.parseTitle(viewNodes[0].textContent, "text");
         obj[name]["title"] = title;
+        obj[name]["subtitle"] = this.parseSubtitle(viewNodes[0].textContent);
       }
 
       if (views.length) {
@@ -187,7 +227,7 @@ export default {
       if (name == "menu" || name == "header") {
         obj[name]["links"] = this.parseHeaderLinks(block.textContent);
       }
-      window.console.log(obj)
+      window.console.log(obj);
       return obj;
     },
     parseCode(text) {
@@ -209,15 +249,14 @@ export default {
       }
     },
     parseSubtitle(text) {
-      var regex = /^#{2}([^#].*?)\n/;
-      const matches = text.match(regex);
-      return matches;
+      var title = this.regexMatch(text, "subtitle");
+      if (title[1]) {
+        return md.render(title[1]).replace("\n", "");
+      }
     },
     parseText(text) {
       if (text.includes("---")) {
-        var textContent = text
-          .split("---")
-          .map((x) => this.parseTextContent(x));
+        var textContent = text.split("---").map(x => this.parseTextContent(x));
         return textContent;
       } else {
         var array = [];
@@ -227,6 +266,7 @@ export default {
     },
     parseTextContent(text) {
       var html = md.render(text);
+      console.log(html);
       if (this.parseVideo(text)) {
         html = this.parseVideo(html);
       }
@@ -235,7 +275,12 @@ export default {
     parseTextOnly(text) {
       var regex = /^(#{1,6}\s*.+)/gm;
       var html = text.replace(regex, "");
-      return md.render(html);
+      if (html.includes("---")) {
+        var textContent = html.split("---").map(x => this.parseTextContent(x));
+        return textContent;
+      } else {
+        return md.render(html);
+      }
     },
     parseLinks(text) {
       var html = md.renderInline(text);
@@ -269,7 +314,7 @@ export default {
           text: links[i].textContent,
           url: links[i].getAttribute("href"),
           style: links[i].getAttribute("style"),
-          class: links[i].getAttribute("class"),
+          class: links[i].getAttribute("class")
         };
         urls.push(obj);
       }
@@ -317,12 +362,13 @@ export default {
     regexMatch(text, element) {
       var regex = {
         title: /\#+(.*?)\n/gi,
+        subtitle: /\###+(.*?)\n/gi,
         attribute: /\[(.*?)\]/gi,
         tag: /\<([^}]+)\>/,
         url: /(https?:\/\/[^\s]+)/,
         link: /\[([^\[]+)\](\(.*\))/gm,
         image: /[\/.](gif|jpg|jpeg|tiff|png)$/i,
-        atag: /<\s*a[^>]*>(.*?)<\s*\/s*a>/,
+        atag: /<\s*a[^>]*>(.*?)<\s*\/s*a>/
       };
       if (text.match(regex[element])) {
         var match = regex[element].exec(text);
@@ -342,23 +388,27 @@ export default {
       var cleant_text = text.replace(regex, "&amp;");
       var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
       var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
-      var array = [];
+      var sections = [];
       for (var x = 0; x < blocks.length; x++) {
-        if (blocks[x].nodeName !== "#text" && blocks[x].nodeName !== "Config") {
-          var block = this.createBlock(blocks[x]);
-          array.push(block);
-        }
-        if (blocks[x].nodeName === "Config") {
-          this.config = this.parseCode(blocks[x].textContent);
-          if (this.config.site.title) {
-            this.sendAnalytics(this.pathname + ' - ' + this.config.site.title)
+        console.log(blocks[x].nodeName.toLowerCase());
+
+        if (blocks[x].nodeName.toLowerCase() == "config") {
+          var config = this.parseCode(blocks[x].textContent);
+          console.log(config);
+          if (config.child) {
+            this.childConfig = config;
           } else {
-            this.sendAnalytics('/' + this.pathname)
+            this.config = config;
+          }
+          if (this.config.site.title) {
+            this.sendAnalytics(this.pathname + " - " + this.config.site.title);
+          } else {
+            this.sendAnalytics("/" + this.pathname);
           }
           if (this.config.site && this.config.site.theme) {
             this.loadThemeLocal(this.config.site.theme);
           } else {
-            this.loadThemeLocal('event');
+            this.loadThemeLocal("event");
           }
           if (this.config.site && this.config.site.template) {
             if (this.config.site.template.toLowerCase() == "campaign") {
@@ -369,12 +419,25 @@ export default {
               this.activeTemplate = this.config.site.template.toLowerCase();
             }
           }
-      
+        }
+        if (blocks[x].nodeName.toLowerCase() == "header") {
+          var block = this.createBlock(blocks[x]);
+          this.header = block.header;
+        }
+        if (blocks[x].nodeName.toLowerCase() == "menu") {
+          var block = this.createBlock(blocks[x]);
+          this.menu = block;
+        }
+
+        if (blocks[x].nodeName.toLowerCase() == "content") {
+          var block = this.createBlock(blocks[x]);
+          sections.push(block);
+        }
+        if (blocks[x].nodeName.toLowerCase() == "footer") {
+          this.footer = this.createFooter(blocks[x]);
         }
       }
-console.log(array)
-
-      return array;
+      this.blocks = sections;
     },
     sendAnalytics(siteName) {
       window.console.log(siteName);
@@ -397,7 +460,7 @@ console.log(array)
     getYaml(value) {
       const doc = new DOMParser().parseFromString(value, "text/html");
       var yaml = [...doc.querySelectorAll("code")].map(
-        (code) => code.textContent
+        code => code.textContent
       );
       if (this.validateYaml(yaml[0])) {
         return YAML.parse(yaml[0]);
@@ -405,18 +468,15 @@ console.log(array)
         return false;
       }
     },
-    getImage(dom) {
-      return dome;
-    },
     loadTemplate(id) {
       var self = this;
       fetch("https://edgeryders.eu/raw/" + id + ".json")
-        .then((response) => {
+        .then(response => {
           response.text().then(function(text) {
-            self.blocks = self.parseBlocks(text);
+            self.parseBlocks(text);
           });
         })
-        .catch((error) => console.error(error));
+        .catch(error => console.error(error));
     },
     loadTheme() {
       let file = document.createElement("link");
@@ -425,44 +485,64 @@ console.log(array)
     },
     loadThemeLocal(theme) {
       var selected_theme = theme;
-      if (theme.toLowerCase() == 'edgeryders') {
-        selected_theme = 'event';
+      if (theme.toLowerCase() == "edgeryders") {
+        selected_theme = "event";
       }
-      this.theme = selected_theme + "_theme"
+      this.theme = selected_theme + "_theme";
     },
     loadTemplateLocal(template) {
       var temp = require("./data/" + template);
-      window.console.log(temp.default)
-      this.blocks = this.parseBlocks(temp.default);
-    },
+      this.parseBlocks(temp.default);
+    }
   },
   created() {
-    
+    bus.$on("loadPage", child => {
+      if (child.data == 'home') {
+       this.$router.push({ path: '/' })
+      } else {
+      this.loadTemplate(child.data);
+      this.$router.push({ path: child.slug })
+      }
+      console.log(this.$router.currentRoute)
+    });
+
     var temp = this.template;
     var config = this.configuration;
     var self = this;
-    var pathname = window.location.pathname.split('/')[1];
-    console.log(pathname);
+    var pathname = window.location.pathname.split("/")[1];
     this.pathname = pathname;
     var address = window.location.hostname;
     console.log(address);
     var self = this;
 
+
     if (config.mode == "local") {
       this.loadTemplateLocal(config.template);
     }
 
+    function findHeading(data, uid) {
+      var test = Object.values(data).filter(section => {
+        return section.children && section.children.some(item => item.slug === uid);
+      })
+      return test
+    }
+
+    if (this.pathname && this.config.pages) {
+      var child = findHeading(this.config.pages, this.pathname).filter(x => x.slug = this.pathname)
+      this.loadTemplate(child[0].data)
+    }
+
+
     if (config.mode == "sandbox") {
       fetch("https://edgeryders.eu/t/13671.json")
-        .then((response) => response.json())
-        .then((data) => {
+        .then(response => response.json())
+        .then(data => {
           // var template = 13686;
           var template = 13799;
-          
+
           var directories = this.getYaml(data.post_stream.posts[0].cooked);
           var result = directories.filter(
-            (x) =>
-              x.alias == pathname || x.id == pathname || x.domain == address
+            x => x.alias == pathname || x.id == pathname || x.domain == address
           )[0];
           if (pathname && !isNaN(pathname)) {
             try {
@@ -481,25 +561,28 @@ console.log(array)
           }
         });
     }
-  },
+  }
 };
 </script>
 
 <style lang="scss">
+.blank_theme {
+  @import "@/assets/blank.scss";
+}
+
 .event_theme {
-    @import '@/assets/event.scss';
+  @import "@/assets/event.scss";
 }
 
 .research_theme {
-    @import '@/assets/research.scss';
+  @import "@/assets/research.scss";
 }
 
 .default_theme {
-    @import '@/assets/econ.scss';
+  @import "@/assets/econ.scss";
 }
 
 .econ_theme {
-    @import '@/assets/econ.scss';
+  @import "@/assets/econ.scss";
 }
-
 </style>

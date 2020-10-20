@@ -14,6 +14,12 @@
       :items="items"
       :view="view"
     />
+    <Board
+      v-if="view.config.template == 'board'"
+      :view="view"
+      :items="items"
+      :users="users"
+    />
     <Standard
       v-else
       :view="view"
@@ -26,18 +32,21 @@
 import People from "./templates/People.vue";
 import Events from "./templates/Events.vue";
 import Standard from "./templates/Standard.vue";
+import Board from "./templates/Board.vue";
 
 export default {
   name: "GridView",
   data() {
     return {
       items: null,
+      users: null
     };
   },
   props: ["view", "data", "topics", "category"],
   components: {
     People,
     Events,
+    Board,
     Standard
   },
   methods: {
@@ -56,6 +65,7 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           self.items = data.topic_list.topics;
+          self.users = data.users;
         });
     },
      getUrl(url) {

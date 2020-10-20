@@ -7,7 +7,8 @@
 site:
   title: Sci-Fi Economics Lab
   lang: en-US
-  theme: econ
+  template: multisite
+  theme: blank
 menu:
   edgeryders:
     icon: classic
@@ -22,100 +23,114 @@ menu:
     anchor: true
     fade: true
 header:
-  image: /visual-frontpage.jpg
-  position: 0 -400px
+  image: https://images.unsplash.com/photo-1582149201423-3101004df248?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3294&q=80
+  position: 0 0px
   social: ['url', 'twitter', 'facebook', 'linkedin', 'email']
-  blur: true
+  blur: false
+pages:
+  - data: home
+    slug: home
+    menu: false
+  - data: 14585
+    slug: about
+    menu: true
+    children:
+    - data: 14585
+      slug: introduction
+    - data: 14633
+      slug: projects
+    - data: 14640
+      slug: partners
+  - data: 14585
+    slug: contact
 
 ```
 
 </Config>
 
-<Menu style="background-color: rgba(0,0,0,0.4)">
+<Menu>
 
 ## Sci-Fi Economics Lab
 
-[About the lab](https://scifieconomicslab.net){style="border: 1px solid white; color: white; border-radius: 20px; padding: 11px 14px; font-weight: bold; font-size: .9rem;" class="test"}
+[test](google.com)
 
 </Menu>
 
-<Header style="background: url('/visual-frontpage.jpg') no-repeat; background-size: cover; background-attachment: fixed; background-position: 0 -400px">
+<Header style="background-color: #ffffff; background-image: url('data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23707070' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E');">
 
-<Text style="background: rgba(0,0,0,0.8); color: white; padding: 30px 4%; width: 70vw">
+<Text>
 
-Sci-Fi Economics Live Event{style="font-size: 1.8em; font-weight: bold"}
+## Participatory culture, open source projects{style="color: #0583FA; font-weight: bold"}
 
-In November 2019, Sci-Fi authors and economists got economic thinking out of its box.{style="line-height: 2.2rem; margin-top: .3rem"}
-
-<a class="partner_logo" href="http://climate-kic.org" target="_blank">
-<img src="/logos/climate_kic_white.png" link="https://www.climate-kic.org" />
-</a>
+<b>We are particip.io</b>. Hackers, artists and data scientists developing open source software tools and methods for participatory and decentralised organisations.{style="color: black;" class="text-2xl"}
 
 </Text>
 
 </Header>
 
-<Content>
+<Content id="about">
 
 <Text>
 
-In 2019, to highlight the synergies between Science Fiction and economics, the [Edgeryders](https://edgeryders.eu) community supported by [EIT Climate-KIC](http://climate-kic.org) organised a major day of debates, workshops and celebrations open to all.{style="font-weight: bold; font-size: 1.5rem"}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim lacinia, tincidunt metus ut, mollis mauris. In quis nunc a sem pulvinar luctus non quis arcu. Nulla vulputate mi a lacus sagittis, at dictum mi semper. Etiam quis sem euismod, mattis mi in, tincidunt leo. Nam purus nibh, sodales eget leo non, blandit vestibulum sapien. Vivamus id magna venenatis, mattis sem in, efficitur leo. Mauris vel gravida ante. Morbi cursus ipsum at urna vehicula, ut consequat tellus tristique. Nunc dictum rutrum diam, ut consectetur dui accumsan at.
 
-[Extinction Rebellion](https://extinctionrebellion.uk) joined forces with the [Sci-Fi Economics Lab](http://scifieconomicslab.net) to discuss and create positive progress. Science fiction author [Cory Doctorow](https://craphound.com), economist [Tom Bauler](http://www.transitsocialinnovation.eu/researchers--partners/tom-bauler), and the CEO of EIT Climate-KIC [Kirsten Dunlop](https://www.climate-kic.org/who-we-are/executive-board/) discussed how sci-fi and economics can give revamp our ability to rethink our economy. We met with academics and brainstorm topics for academic articles to be published in 2020.
+Praesent finibus ex felis, vel gravida elit porttitor non. Nulla ut magna maximus, fermentum orci sed, euismod magna. Vestibulum dapibus elit fringilla lorem scelerisque semper. Mauris sagittis posuere mattis. Duis rhoncus quam eget urna pulvinar faucibus. Mauris sed ullamcorper tortor. Donec non felis a justo consequat tincidunt.
 
-To catch up on the discussion, check out the recording of our live panel discussion with Cory Doctorow, Tom Bauler and Kirsten Dunlop.
-
-</Text>
-
-<Text>
-
-https://www.youtube.com/watch?v=klH0QbIhBEg
-
-Live panel discussion with Cory Doctorow, Tom Bauler and Kirsten Dunlop.{style="color: rgba(0,0,0,0.7); font-weight: bold; font-size: 15px"}
 
 </Text>
 
 </Content>
 
-<Content style="background: url('/network.jpg') #fafafa; background-position: 45vw 0; background-repeat: no-repeat;">
+<Content id="long-termism" style="">
 
-## Thank you
-
-<Text style="padding-right: 130px">
-
-We would like to thank all the contributors to the crowdfunding campaign who made this possible. Without them this event would not have been possible. 
-
-</Text>
-
-</Content>
-
-
-
-<Content style="background: #fafafa;">
-
-  ## Contributors
+## Sub-heading
 
 <Text>
 
-Riyong Kim, Ke'Aun Charles, Abaca Games, Mark Finnern, Märt Põder, Pat Kane, Giuseppe Borsalino, Joeri Gydé, Alorah M. Harman, Joseph DCruz, Jozef Cossey, Michael Morel, Lotte Houwing, Esther Crabbendam, Nik Gaffney, Giulio Bordonaro, Alessio Vasta, Mark Finnern, Jason Cole, Kelly Curtis, Janne Korhonen, Jan Tiedemann, Herman Wagter, Arianna Cecchi, Henri Laupmaa, Gaye Soykok, Barry Wickenden, Kim Cappart, Gallais Georges, Ton Zijlstra, f.sestini, Carsten Schmitt, Eirini Malliaraki, Jason Cole, Cathy Brown, Christopher Harris, ari.wallach, tomelsner, Tamara Foubert,
-Francois Julie, Valerie Andrews, Andrew Brook, Simona Montanari, Cristina Varela, Carmen Polcaro, Vittoria Bandini, Paulo Alves, Phillip Procyk{style="font-size: 16px"}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim lacinia, tincidunt metus ut, mollis mauris. In quis nunc a sem pulvinar luctus non quis arcu. 
+
+Praesent finibus ex felis, vel gravida elit porttitor non. Nulla ut magna maximus, fermentum orci sed, euismod magna. Vestibulum dapibus elit fringilla lorem scelerisque semper. 
 
 ---
 
-Matthew Alexander, Paweł Krawczyk, Ramsey Haddad, Sarah Allen, Derek Horstmeyer, lee.hosan, Georgios Georgiadis, Tommaso Dradi, anne currie, Martin Bohle, Carlo Cottica, David Rinaldi, Johannes Ernst, Michelle Greenwood, Ben Gansky, Kira Van den Ende, Jean M Russell, stefano daelli, Alessandra Farabegoli, Graham Boyd, Ilaria Vitellio, nik gaffney, Filippo Barbera, Ida Leone, Neil Reeder, Dana Fell, Mark Hutchinson, nic, Eckhard Stoermer, Leina Mestrovic, Daniel Kaplan, Nicholas Butta, Anders Rune Jensen, Rieki Cordon, Dietmar Pohland, Francesco Mureddu, tex, Matthias Ansorg, David ten Have, Geoff Becker, Phillip Tussing, Hanna Carlsson, Augusto Pirovano, Angelo Di Mambro, barbara.renaux, Ton Zijlstra, joannestruyens{style="font-size: 16px"}
+https://vimeo.com/370568766
 
 </Text>
 
 </Content>
 
-<Content id="Send us your feedback">
+<Content id="mutant economies">
 
-## Event Feedback
+## Sub-heading
 
-<form data="14539" />
+<Text style="width: 50%">
+
+Mauris sagittis posuere mattis. Duis rhoncus quam eget urna pulvinar faucibus. Mauris sed ullamcorper tortor. Donec non felis a justo consequat tincidunt.
+---
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim lacinia, tincidunt metus ut, mollis mauris. In quis nunc a sem pulvinar luctus non quis arcu. 
+---
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim lacinia, tincidunt metus ut, mollis mauris. In quis nunc a sem pulvinar luctus non quis arcu. 
+
+</Text>
+
+</Content>
+
+<Content id="blog" style="background: #fafafa;">
 
 </Content>
 
 <Footer template="climate_kick">
+
+## Some text
+
+isjlksajklsjsdajdsakjdaslksadsad
+dsaasdkasdklsajasjaskdljsakjdsaas
+adslksadj
+
+---
+
+sjaklasjksajas
+
+</Footer>
 
 </Webkit>

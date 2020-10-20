@@ -1,31 +1,36 @@
 import Vue from "vue";
 import App from "./App.vue";
-import './assets/base.scss';
-import 'vue-resize/dist/vue-resize.css'
+import "./assets/base.scss";
 
-import VueResize from 'vue-resize'
+export const bus = new Vue();
 
-Vue.use(VueResize)
+import VueRouter from 'vue-router'
 
-import VueMasonry from 'vue-masonry-css'
+Vue.use(VueRouter)
 
-import VueAnalytics from 'vue-analytics'
+import "vue-resize/dist/vue-resize.css";
+import VueResize from "vue-resize";
+
+Vue.use(VueResize);
+
+import VueMasonry from "vue-masonry-css";
+
+import VueAnalytics from "vue-analytics";
 
 Vue.use(VueMasonry);
 
 window.md = require("markdown-it")({
-  html: true,
+  html: true
 });
 var markdownItAttrs = require("markdown-it-attrs");
 var emoji = require("markdown-it-emoji");
 import twemoji from "twemoji";
 import vuescroll from "vue-scroll";
-const VueScrollTo = require('vue-scrollto')
-Vue.use(VueScrollTo)
+const VueScrollTo = require("vue-scrollto");
+Vue.use(VueScrollTo);
 
-import VueSmoothScroll from 'vue2-smooth-scroll'
-Vue.use(VueSmoothScroll)
-
+import VueSmoothScroll from "vue2-smooth-scroll";
+Vue.use(VueSmoothScroll);
 
 import vueHeadful from "vue-headful";
 
@@ -48,9 +53,20 @@ window.md.renderer.rules.emoji = function(token, idx) {
 Vue.use(vuescroll);
 
 Vue.use(VueAnalytics, {
-  id: 'UA-4275556-5'
+  id: "UA-4275556-5"
+});
+
+const routes = [
+  { path: '/foo', component: App }
+]
+
+const router = new VueRouter({
+  mode: 'history',
+  routes // short for `routes: routes`
 })
 
+
 new Vue({
-  render: (h) => h(App),
+  router,
+  render: h => h(App)
 }).$mount("#app");

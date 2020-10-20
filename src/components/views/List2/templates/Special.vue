@@ -1,55 +1,10 @@
 <template>
   <div class="list" v-resize="onResize" :class="[{ active: active }, viewport]">
     <div class="list_container">
-      <ul class="list_items" :class="{ active: !active }">
-        <input
-          placeholder="search"
-          v-model="search"
-          v-if="view && view.config && view.config.search"
-        />
-        <li
-          v-for="(item, index) in filteredItems"
-          :key="index"
-          @click="select(index)"
-          :class="{ active: selected == index }"
-        >
-          <p class="item_header">{{ item.author }}</p>
-          {{ item.title }}
-        </li>
-      </ul>
-      <div class="list_info" :class="{ active: active }" @click="toggle()">
-        <div class="list_back">back</div>
-        <div class="item_selected">
-          <div
-            v-if="filteredItems[selected].image"
-            class="item_image"
-            :style="{
-              background: 'url(' + filteredItems[selected].image + ')',
-            }"
-          ></div>
-          <div class="item_info">
-            <div class="item_title">
-              {{ filteredItems[selected].title }}
-              <span class="item_author"
-                >by {{ filteredItems[selected].author }}</span
-              >
-            </div>
-            <div class="item_meta" v-if="filteredItems[selected].publisher">
-              {{ filteredItems[selected].publisher }} ({{
-                filteredItems[selected].date
-              }})
-            </div>
-
-            <div
-              class="item_text"
-              v-if="filteredItems[selected].text"
-              v-html="filteredItems[selected].text"
-            ></div>
-          </div>
-        </div>
-      </div>
+    {{items}}
+     
     </div>
-    <resize-observer @notify="onResize" />
+
   </div>
 </template>
 
@@ -71,18 +26,7 @@ export default {
     };
   },
   mounted() {
-    var width = this.$el.offsetWidth;
-    if (width < 800) {
-      this.viewport = "mobile";
-    } else {
-      this.viewport = "desktop";
-      this.selected = 0;
-    }
-    if (this.view.config.display) {
-      this.display = this.view.config.display.replace(" ", "").split(",");
-    } else {
-      this.display = null;
-    }
+ 
   },
   methods: {
     onResize({ width, height }) {
@@ -111,12 +55,9 @@ export default {
   },
   computed: {
     filteredItems() {
-      if (this.items) {
         var self = this;
-        return this.items.filter((item) => {
-          return item.title && item.title.toLowerCase().includes(this.search);
-        });
-      }
+        return items;
+
     },
   },
   components: {

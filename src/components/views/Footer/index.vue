@@ -1,7 +1,6 @@
 <template>
   <div class="section footer">
-    <CKick v-if="config && config.template && config.template == 'climate_kick'" />
-    <Standard v-else />
+    {{config}}
   </div>
 </template>
 
@@ -11,9 +10,7 @@ import CKick from "./templates/CKick.vue";
 export default {
   name: "Footer",
   data() {},
-  props: {
-    config: Object
-  },
+  props: ['config'],
   components: {
     Standard,
     CKick

@@ -1,6 +1,6 @@
 <template>
   <div class="form">
-                <div id="tests" ref="myEl"></div>
+    <div id="tests" ref="myEl"></div>
 
     <div class="introduction">
       <h2>{{form.config.title}}</h2>
@@ -366,8 +366,11 @@ export default {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const payloadParam = urlParams.get('payload')
-    if (this.view.config.data) {
+    if (this.view && this.view.config.data) {
       this.formId = this.view.config.data
+    }
+    if (this.formLink) {
+      this.formId = this.formLink
     }
     if (payloadParam) {
       setTimeout(() =>  this.scroll(), 500);
@@ -379,7 +382,7 @@ export default {
       this.login()
     }
   },
-  props: ["view"]
+  props: ["view", "formLink"]
 }
 </script>
 
