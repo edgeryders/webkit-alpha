@@ -18,12 +18,24 @@ import { bus } from "@/main";
 
 export default {
   name: "Links",
-  props: ["items"],
+  props: ["items", "active"],
   data() {
     return {
       parent: null,
       child: null,
     }
+  },
+  created(){
+    this.parent = this.active.parent;
+    this.child = this.active.child;
+  },
+  watch: {
+    active: function (val) {
+      this.parent = val.parent;
+      if (val.child) {
+      this.child = val.child;
+      }
+    },
   },
   methods: {
     load(data, parent) {
@@ -69,22 +81,23 @@ ul {
     font-family: $open-sans;
     font-size: 1rem;
     font-weight: 400;
-    color: #000;
+    color: #fff;
     height: 100%;
     padding: 0 1.25rem;
     text-transform: capitalize;
     display: inline-flex;
     align-items: center;
     position: relative;
-    @apply border-l;
-
+    border-right: .5px solid rgba(255,255,255,0.1);
+    &:first-child {
+     border-left: none;
+  }
     span {
     font-weight: bold;
   }
     &.active {
-      background-color: #fafafa ;
-    color: #0583FA;
-              box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+      background-color: rgba(0,0,0,0.3) ;
+    color: #fff;
 
     }
     ul {
@@ -96,7 +109,7 @@ box-shadow: 0 10px 10px rgba(0,0,0,0.1);
     // initial li:hover
     &:hover {
       cursor: pointer;
-      background-color: #fafafa;
+      background-color: rgba(0,0,0,0.3);
        box-shadow: none;
       span.active {
                 color: white !important;
@@ -120,19 +133,20 @@ box-shadow: 0 10px 10px rgba(0,0,0,0.1);
           padding-bottom: 1.2rem;
           font-size: 16px;
           align-items: center;
-           background: rgba(255,255,255,0.9);
+           background-color: rgba(0,0,0,0.5);
 
           font-weight: bold;
           border: none;
-          border-bottom: 1px solid #efefef;
+          border-bottom: .5px solid rgba(255,255,255,0.1);
           &.active {
-          color: #0583FA;
-           box-shadow: none;
-          background-color: #fafafa
+          color: #fff;
+           background-color: rgba(0,0,0,0.6);
+           border-bottom: .5px solid rgba(255,255,255,0.3);
+
         }
 
           &:hover {
-            background-color: #fafafa;
+              background-color: rgba(0,0,0,0.6);
           }
        
         }

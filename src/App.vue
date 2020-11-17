@@ -1,10 +1,12 @@
 <template>
   <div id="app" :class="theme">
     <component
+      v-if="!loading"
       :is="activeTemplate"
       :header="header"
       :config="config"
       :blocks="blocks"
+      :active="active"
     ></component>
   </div>
 </template>
@@ -25,6 +27,7 @@ export default {
   data() {
     return {
       tags: null,
+      loading: false,
       activeTemplate: "edgeryders",
       template,
       configuration,
@@ -35,6 +38,7 @@ export default {
       menu: null,
       footer: null,
       childBlocks: null,
+      active: null,
       config: null,
       stylesheet: null,
       pathname: null,
@@ -201,7 +205,7 @@ export default {
 
       if (this.parseTitle(viewNodes[0].textContent)) {
         var title = this.parseTitle(viewNodes[0].textContent, "text");
-        obj[name]["title"] = title;
+        obj[name]["title"] = md.render(title);
         obj[name]["subtitle"] = this.parseSubtitle(viewNodes[0].textContent);
       }
 
@@ -395,11 +399,15 @@ export default {
         if (blocks[x].nodeName.toLowerCase() == "config") {
           var config = this.parseCode(blocks[x].textContent);
           console.log(config);
-          if (config.child) {
-            this.childConfig = config;
-          } else {
-            this.config = config;
-          }
+          if (!config.child) {
+             this.config = config;
+             var pages = config.pages;
+            var pathname = window.location.pathname.split("/")[1];
+           
+               if (pathname) {
+                 this.loadPage(pathname, true)  
+               }
+          } 
           if (this.config.site.title) {
             this.sendAnalytics(this.pathname + " - " + this.config.site.title);
           } else {
@@ -468,12 +476,15 @@ export default {
         return false;
       }
     },
-    loadTemplate(id) {
+    loadTemplate(id, loading) {
       var self = this;
       fetch("https://edgeryders.eu/raw/" + id + ".json")
         .then(response => {
           response.text().then(function(text) {
             self.parseBlocks(text);
+            if (loading) {
+              self.loading = false
+            }
           });
         })
         .catch(error => console.error(error));
@@ -493,24 +504,48 @@ export default {
     loadTemplateLocal(template) {
       var temp = require("./data/" + template);
       this.parseBlocks(temp.default);
+    },
+    loadPage(id, loading){
+      this.loading = loading;
+      var parent = this.config.pages.filter(section => {
+        return section.slug === id || section.children && section.children.filter(child => child.slug === id);
+      })
+
+      var active = {
+        'parent': null,
+        'child': null
+      };
+
+      if (!parent[1]) {
+        var child = parent[0]['children'].filter(x => x.slug == id)[0];
+        active.parent = parent[0].slug;
+        active.child = child.slug
+        this.loadTemplate(child.data, true);
+      } else {
+        active.parent = parent[1].slug;
+        this.loadTemplate(parent[1].data, true);
+      }
+      
+      this.active = active;
+    
     }
   },
   created() {
     bus.$on("loadPage", child => {
-      if (child.data == 'home') {
-       this.$router.push({ path: '/' })
-      } else {
-      this.loadTemplate(child.data);
-      this.$router.push({ path: child.slug })
-      }
-      console.log(this.$router.currentRoute)
+        this.loadTemplate(child.data);
+        this.$router.push({ path: child.slug })
+        window.scrollTo(0, 0);
+    });
+
+    bus.$on("historyChange", slug => {
+      this.loadPage(slug, false);
+      window.scrollTo(0, 0);
     });
 
     var temp = this.template;
     var config = this.configuration;
     var self = this;
     var pathname = window.location.pathname.split("/")[1];
-    this.pathname = pathname;
     var address = window.location.hostname;
     console.log(address);
     var self = this;
@@ -519,48 +554,12 @@ export default {
     if (config.mode == "local") {
       this.loadTemplateLocal(config.template);
     }
-
-    function findHeading(data, uid) {
-      var test = Object.values(data).filter(section => {
-        return section.children && section.children.some(item => item.slug === uid);
-      })
-      return test
-    }
-
-    if (this.pathname && this.config.pages) {
-      var child = findHeading(this.config.pages, this.pathname).filter(x => x.slug = this.pathname)
-      this.loadTemplate(child[0].data)
-    }
-
-
+    
+    
     if (config.mode == "sandbox") {
-      fetch("https://edgeryders.eu/t/13671.json")
-        .then(response => response.json())
-        .then(data => {
-          // var template = 13686;
-          var template = 13799;
-
-          var directories = this.getYaml(data.post_stream.posts[0].cooked);
-          var result = directories.filter(
-            x => x.alias == pathname || x.id == pathname || x.domain == address
-          )[0];
-          if (pathname && !isNaN(pathname)) {
-            try {
-              self.loadTemplate(pathname);
-            } catch (e) {
-              self.loadTemplate(template);
-            }
-          } else if (result && result.id) {
-            try {
-              self.loadTemplate(result.id);
-            } catch (e) {
-              self.loadTemplate(template);
-            }
-          } else {
-            self.loadTemplate(template);
-          }
-        });
+      self.loadTemplate(14767);
     }
+
   }
 };
 </script>
