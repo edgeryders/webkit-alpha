@@ -1,16 +1,12 @@
 <template>
   <div id="app" ref="bodyContainer">
     <vue-headful
-        :title="config.site.title || 'Edgeryders'"
-        :description="config.site.summary"
-        :keywords="config.site.keywords"
-        :image="config.site.image"
-        :lang="config.site.lang"
-        :ogLocale="config.site.lang"
-    />
-    <vue-headful
-      :title="config.site.title || 'Edgeryders'"
-      :description="config.site.summary"
+        :title="getMeta().title"
+        :description="getMeta().summary"
+        :keywords="getMeta().keywords"
+        :image="getMeta().image"
+        :lang="getMeta().lang"
+        :ogLocale="getMeta().lang"
     />
     <div class="menu_container">
       <a class="flex items-center" href="./">
@@ -56,11 +52,12 @@
               <div class="text" :class="view.config && view.config.class" v-for="text in view.text" v-html="text" :style="view.config && view.config.style"></div>
             </div>
             <Carousel v-if="view.type == 'carousel'" :view="view" />
+            <Blog v-if="view.type == 'blog'" :view="view" />
           </div>
         </div>
       </div>
     </div>
-    <Footer />
+    <Footer v-if="config.site.footer" />
     
   </div>
 </template>
@@ -118,13 +115,37 @@ export default {
     Footer,
     Modal,
   },
-  props: ["header", "blocks", "config", "active"],
+  props: ["header", "blocks", "config", "active", "child"],
   watch: {
     $route(to, from) {
       bus.$emit("historyChange", to.path.substring(1));
     },
   },
   methods: {
+    getMeta() {
+      
+      var childConfig = {
+        };
+      
+      if (this.child) {
+        childConfig = this.child.child;
+      }
+       
+      var obj = {
+        "title": this.config.site.title + ' | Edgeryders' || 'Edgeryders',
+        "summary": childConfig.summary || this.config.site.summary,
+        "image": childConfig.image || this.config.site.image,
+        "keywords": childConfig.keywords || this.config.site.keywords,
+        "lang": childConfig.lang || this.config.site.lang,
+        "locale": childConfig.lang || this.config.site.lang
+      }
+      
+      if (childConfig.title) {
+        obj['title'] = this.config.site.title + ' | ' + childConfig.title;
+      }
+      
+      return obj;
+    },
     handleClicks(event) {
       let { target } = event;
       var linkTarget = target.getAttribute("href");
@@ -278,7 +299,7 @@ export default {
   justify-content: center;
   align-items: center;
   transition: height 1s cubic-bezier(0.22, 1, 0.36, 1);
-
+  background-size: cover !important;
   .wrapper {
     width: 80%; 
     max-width: 920px;
@@ -299,7 +320,7 @@ left: 0px;
     z-index: -1;
     background: black;
     video {
-      opacity: .6;
+      opacity: 1;
       object-fit: cover;
   width: 100%;
   height: 100%;

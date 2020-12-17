@@ -5,6 +5,7 @@
       :is="activeTemplate"
       :header="header"
       :config="config"
+      :child="childConfig"
       :blocks="blocks"
       :active="active"
     ></component>
@@ -40,6 +41,7 @@ export default {
       childBlocks: null,
       active: null,
       config: null,
+      childConfig: null,
       stylesheet: null,
       pathname: null,
       data: {
@@ -400,13 +402,20 @@ export default {
           var config = this.parseCode(blocks[x].textContent);
           console.log(config);
           if (!config.child) {
-             this.config = config;
-             var pages = config.pages;
+            this.config = config;
+            var pages = config.pages;
             var pathname = window.location.pathname.split("/")[1];
-           
-               if (pathname) {
-                 this.loadPage(pathname, true)  
+            var sub = window.location.pathname.split("/")[2];
+            console.log(sub);
+             if (pathname) {
+               this.loadPage(pathname, true);
+               if (sub) {
+                this.loadPage(pathname, true, sub);
                }
+             }
+          } 
+          if (config.child) {
+            this.childConfig = config;
           } 
           if (this.config.site.title) {
             this.sendAnalytics(this.pathname + " - " + this.config.site.title);
@@ -505,10 +514,10 @@ export default {
       var temp = require("./data/" + template);
       this.parseBlocks(temp.default);
     },
-    loadPage(id, loading){
+    loadPage(id, loading, sub){
       this.loading = loading;
       var parent = this.config.pages.filter(section => {
-        return section.slug === id || section.children && section.children.filter(child => child.slug === id);
+        return section.slug === id || section.children && section.children.filter(child => child.slug.replace(/\s+/g, '-').toLowerCase() === id);
       })
 
       var active = {
@@ -517,10 +526,19 @@ export default {
       };
 
       if (!parent[1]) {
-        var child = parent[0]['children'].filter(x => x.slug == id)[0];
+        var child = parent[0]['children'].filter(x => x.slug == id.replace(/\s+/g, '-').toLowerCase())[0];
         active.parent = parent[0].slug;
-        active.child = child.slug
-        this.loadTemplate(child.data, true);
+        active.child = child.slug;
+        if (sub) {
+          var sub_child = child.children.filter(section => {
+            return section.slug.replace(/\s+/g, '-').toLowerCase() === sub.toLowerCase();
+          });
+          this.loadTemplate(sub_child[0].data, true);
+          active.parent = child.slug;
+          active.child = sub_child[0].slug.replace(/\s+/g, '-').toLowerCase();
+        } else {
+          this.loadTemplate(child.data, true);
+        }
       } else {
         active.parent = parent[1].slug;
         this.loadTemplate(parent[1].data, true);
@@ -533,7 +551,8 @@ export default {
   created() {
     bus.$on("loadPage", child => {
         this.loadTemplate(child.data);
-        this.$router.push({ path: child.slug })
+        this.$router.push({ path: child.slug.replace(/\s+/g, '-').toLowerCase() });
+
         window.scrollTo(0, 0);
     });
 

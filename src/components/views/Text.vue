@@ -1,5 +1,5 @@
 <template>
-  <div class="text_wrapper" :class="[{'single': content.length == 1 }, config && config.class]" :style="config && config.style">
+  <div class="text_wrapper" :class="[{'single': content.length == 1 }, config && config.class]">
     <div v-if="title" class="text_title" v-html="title"></div>
     <div :class="{'horizontal': content.length > 1 }">
       <component class="text_content" v-for="(test, index) in content" v-bind:is="parse(test)" :key="index"></component>
