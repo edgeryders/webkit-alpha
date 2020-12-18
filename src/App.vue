@@ -1,14 +1,13 @@
 <template>
   <div id="app" :class="theme">
-    <component
+    <multisite
       v-if="!loading"
-      :is="activeTemplate"
       :header="header"
       :config="config"
       :child="childConfig"
       :blocks="blocks"
       :active="active"
-    ></component>
+    ></multisite>
   </div>
 </template>
 
@@ -19,8 +18,6 @@ import { bus } from "@/main";
 import template from "./data/template.md";
 import configuration from "./data/config.yaml";
 
-import edgeryders from "./components/templates/Edgeryders.vue";
-import minimal from "./components/templates/Minimal.vue";
 import multisite from "./components/templates/Multisite.vue";
 
 export default {
@@ -51,8 +48,6 @@ export default {
     };
   },
   components: {
-    edgeryders,
-    minimal,
     multisite
   },
   methods: {
@@ -417,7 +412,7 @@ export default {
           if (config.child) {
             this.childConfig = config;
           } 
-          if (this.config.site.title) {
+          if (this.config && this.config.site.title) {
             this.sendAnalytics(this.pathname + " - " + this.config.site.title);
           } else {
             this.sendAnalytics("/" + this.pathname);
@@ -551,8 +546,21 @@ export default {
   created() {
     bus.$on("loadPage", child => {
         this.loadTemplate(child.data);
-        this.$router.push({ path: child.slug.replace(/\s+/g, '-').toLowerCase() });
+        this.$router.push({ path: '/' + child.slug.replace(/\s+/g, '-').toLowerCase() });
 
+        window.scrollTo(0, 0);
+    });
+
+    bus.$on("loadSubPage", obj => {
+      console.log(obj);
+       var pathname = window.location.pathname.split("/")[1];
+       if (pathname == obj.parent) {
+         this.$router.push({ path: obj.data.slug.replace(/\s+/g, '-').toLowerCase() });
+       } else {
+         this.$router.replace({ path: obj.parent.replace(/\s+/g, '-').toLowerCase() + '/' + obj.data.slug.replace(/\s+/g, '-').toLowerCase() });
+       }
+       
+         this.loadTemplate(obj.data.data);
         window.scrollTo(0, 0);
     });
 
