@@ -14,7 +14,7 @@
             <span @click="load(child, item.slug)"> {{ child.slug }}</span>
             <ul v-if="child.children" class="subChildren">
               <li v-for="subChild in child.children" :class="{active: subChild.slug == child}">
-               <span @click="load(subChild, child.slug)"> {{subChild.slug}}</span>
+               <span @click="load(subChild, child.slug, true)">{{subChild.slug}}</span>
               </li>
             </ul>
           </li>
@@ -30,7 +30,7 @@
             <span @click="load(child, item.slug)"> {{ child.slug }}</span>
             <ul v-if="child.children" class="subChildren">
               <li v-for="subChild in child.children" :class="{active: subChild.slug == child}">
-               <span @click="load(subChild, child.slug)"> {{subChild.slug}}</span>
+               <span @click="load(subChild, child.slug, true)"> {{subChild.slug}}</span>
               </li>
             </ul>
           </li>
@@ -67,7 +67,7 @@ export default {
     },
   },
   methods: {
-    load(data, parent) {
+    load(data, parent, sub) {
       this.mobileMenu = false;
       if (parent) {
         this.parent = parent;
@@ -76,7 +76,15 @@ export default {
         this.parent = data.slug;
         this.child = null;
       }
-      bus.$emit("loadPage", data);
+      if (sub) {
+        var obj = {
+          'parent': parent,
+          'data': data
+        }
+        bus.$emit("loadSubPage", obj);
+      } else {
+        bus.$emit("loadPage", data);
+      }
     },
     toggleMenu(){
       this.mobileMenu = !this.mobileMenu;
