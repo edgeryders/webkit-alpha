@@ -34,7 +34,7 @@
     </div>
 
     <div class="content">
-      <div class="section" v-for="item in blocks" :style="item.section.style" :class="item.section.config.class">
+      <div class="section" v-for="item in blocks" :style="item.section.style" :class="item.section && item.section.config && item.section.config.class">
         <div class="wrapper">
           <div class="section_title" v-if="item.section.title">
             <h2 v-html="item.section.title"></h2>
