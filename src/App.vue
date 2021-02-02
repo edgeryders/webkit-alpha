@@ -584,7 +584,7 @@ export default {
     
     
     if (config.mode == "sandbox") {
-      self.loadTemplate(14767);
+      self.loadTemplate(config.template);
     }
 
   }
