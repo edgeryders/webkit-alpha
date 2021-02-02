@@ -11,7 +11,7 @@
     <div class="menu_container">
       <a class="flex items-center" href="./">
         <div class="er_logo"></div>
-        <img class="logo" src="@/assets/logos/participio_logo_3.png" />
+        <div class="other_logo" v-if="config.menu.other"><img :src="config.menu.other.icon"/></div>
       </a>
       <Links :items="config.pages" :active="active" />
     </div>
@@ -49,7 +49,9 @@
               v-if="view.text"
               :class="{ multiple: view.text.length > 1 }"
             >
+
               <div class="text" :class="view.config && view.config.class" v-for="text in view.text" v-html="text" :style="view.config && view.config.style"></div>
+         
             </div>
             <Carousel v-if="view.type == 'carousel'" :view="view" />
             <Blog v-if="view.type == 'blog'" :view="view" />
@@ -350,6 +352,13 @@ left: 0px;
     display: inline-block;
     border-right: 1px solid rgba(255, 255, 255, 0.7);
   }
+  .other_logo {
+  @apply ml-3;
+  img {
+    height: 37px;
+    width: auto;
+    }
+  }
   .logo {
     height: 20px;
     @apply ml-3 mt-0;
@@ -398,10 +407,31 @@ left: 0px;
       &:last-child {
         @apply mr-0;
       }
+      ul {
+      list-style: disc;
+      li {
+      @apply pb-0 mb-0;
+    }
+    }
+      blockquote {
+        @apply bg-gray-100 p-6 border-l-4 my-4 inline-block ;
+
+        max-width: 85%;
+        p {
+          @apply mb-1;
+        }
+        cite {
+          @apply mt-0 font-normal;
+          color: rgba(0,0,0,0.7);
+        }
+      }
     }
     &.multiple {
       .text {
-      
+        img {
+          @apply mt-10 w-full pt-10 mx-auto block;
+          max-width: 100%;
+        }
       }
     }
   }
@@ -452,7 +482,7 @@ left: 0px;
   .text {
     @apply text-lg;
     h2 {
-      @apply text-2xl font-bold mb-2;
+      @apply text-2xl font-bold mt-6 mb-2;
     }
     p {
       @apply mb-4;
@@ -461,11 +491,13 @@ left: 0px;
       width: 50%; padding: 2rem; background: rgba(0,0,0,0.8);font-weight: bold; color: white; margin-left: auto;
     }
     img {
-      @apply mt-6 pl-6 pt-6;
+      @apply mt-4 mb-8 mx-auto block;
+      max-width: 60%;
     }
-    ul {
+    ul, ol {
+    @apply mb-4 inline-block;
       li {
-        @apply border-b py-4;
+        @apply border-b py-4 ml-6;
         width: 90%;
         &:last-child {
           border: none;
@@ -503,6 +535,8 @@ left: 0px;
     }
   }
 }
+
+
 
 @media only screen and (max-width: 800px) {
   .header {
@@ -597,4 +631,6 @@ left: 0px;
     }
   }
 }
+
+
 </style>
