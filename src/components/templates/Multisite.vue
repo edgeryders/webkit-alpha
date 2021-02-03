@@ -49,9 +49,11 @@
               v-if="view.text"
               :class="{ multiple: view.text.length > 1 }"
             >
+              <a v-if="view && view.config && view.config.url" class="text" :href="view.config.url" :class="view.config.class" v-for="text in view.text" v-html="text" :style="view.config && view.config.style"></a>
 
-              <div class="text" :class="view.config && view.config.class" v-for="text in view.text" v-html="text" :style="view.config && view.config.style"></div>
-         
+              <div class="text" v-if="view && !view.config || !view.config.url" :class="view.config && view.config.class" v-for="text in view.text" v-html="text" :style="view.config && view.config.style"></div>
+            
+
             </div>
             <Carousel v-if="view.type == 'carousel'" :view="view" />
             <Blog v-if="view.type == 'blog'" :view="view" />
@@ -59,7 +61,7 @@
         </div>
       </div>
     </div>
-    <Footer v-if="config.site.footer" />
+    <Footer />
     
   </div>
 </template>
