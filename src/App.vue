@@ -82,7 +82,10 @@ export default {
       var tagAtr = view.getAttribute("tag");
       var style = styleAtr;
 
-      var html = view.innerHTML;
+      var html = md.render(view.textContent);
+      var text = view.textContent;
+            console.log(html);
+
       var obj = {};
       obj["type"] = name;
 
@@ -96,7 +99,7 @@ export default {
       }
 
       if (name == "text" && !header) {
-        obj["text"] = this.parseText(html);
+        obj["text"] = this.parseText(text);
         obj["links"] = header;
         if (style) {
           obj["style"] = style;
@@ -105,8 +108,8 @@ export default {
       }
 
       if (name == "text" && header) {
+        console.log(html);
         obj["text"] = this.parseHeaderText(html);
-        obj["title"] = this.parseTitle(html);
         obj["links"] = this.parseHeaderLinks(html);
         if (style) {
           obj["style"] = style;
@@ -228,7 +231,6 @@ export default {
       if (name == "menu" || name == "header") {
         obj[name]["links"] = this.parseHeaderLinks(block.textContent);
       }
-      window.console.log(obj);
       return obj;
     },
     parseCode(text) {
@@ -256,10 +258,12 @@ export default {
       }
     },
     parseText(text) {
+      console.log(text);
       if (text.includes("---")) {
         var textContent = text.split("---").map(x => this.parseTextContent(x));
         return textContent;
-      } else {
+      }
+      else {
         var array = [];
         array.push(this.parseTextContent(text));
         return array;
@@ -267,7 +271,6 @@ export default {
     },
     parseTextContent(text) {
       var html = md.render(text);
-      console.log(html);
       if (this.parseVideo(text)) {
         html = this.parseVideo(html);
       }
@@ -296,6 +299,7 @@ export default {
       var noTitle = text.replace(titleRegex, "");
       var html = md.render(noTitle);
       var text = html.replace(linksRegex, "").replace(/(\r\n|\n|\r)/gm, "");
+      console.log(text);
       return [text];
     },
     parseHeaderLinks(text) {
@@ -391,17 +395,14 @@ export default {
       var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
       var sections = [];
       for (var x = 0; x < blocks.length; x++) {
-        console.log(blocks[x].nodeName.toLowerCase());
 
         if (blocks[x].nodeName.toLowerCase() == "config") {
           var config = this.parseCode(blocks[x].textContent);
-          console.log(config);
           if (!config.child) {
             this.config = config;
             var pages = config.pages;
             var pathname = window.location.pathname.split("/")[1];
             var sub = window.location.pathname.split("/")[2];
-            console.log(sub);
              if (pathname) {
                this.loadPage(pathname, true);
                if (sub) {
@@ -452,7 +453,6 @@ export default {
       this.blocks = sections;
     },
     sendAnalytics(siteName) {
-      window.console.log(siteName);
       this.$ga.page(siteName);
     },
     type(obj) {
@@ -511,9 +511,18 @@ export default {
     },
     loadPage(id, loading, sub){
       this.loading = loading;
+      
+       var ids = this.config.pages.map(section => section.slug.replace(' ', '-').toLowerCase());
+
+      console.log(ids);
       var parent = this.config.pages.filter(section => {
-        return section.slug === id || section.children && section.children.filter(child => child.slug.replace(/\s+/g, '-').toLowerCase() === id);
+        var camelCaseId = section.slug.replace(' ', '-').toLowerCase();
+        console.log(camelCaseId);
+        console.log(id);
+        return camelCaseId === id || section.children && section.children.filter(child => child.slug.replace(' ', '-').toLowerCase() === id);
       })
+
+      console.log(parent);
 
       var active = {
         'parent': null,
@@ -535,6 +544,8 @@ export default {
           this.loadTemplate(child.data, true);
         }
       } else {
+        console.log('HI');
+        console.log(parent[1].data);
         active.parent = parent[1].slug;
         this.loadTemplate(parent[1].data, true);
       }
@@ -544,6 +555,7 @@ export default {
     }
   },
   created() {
+
     bus.$on("loadPage", child => {
         this.loadTemplate(child.data);
         this.$router.push({ path: '/' + child.slug.replace(/\s+/g, '-').toLowerCase() });
@@ -552,7 +564,6 @@ export default {
     });
 
     bus.$on("loadSubPage", obj => {
-      console.log(obj);
        var pathname = window.location.pathname.split("/")[1];
        if (pathname == obj.parent) {
          this.$router.push({ path: obj.data.slug.replace(/\s+/g, '-').toLowerCase() });
@@ -574,17 +585,14 @@ export default {
     var self = this;
     var pathname = window.location.pathname.split("/")[1];
     var address = window.location.hostname;
-    console.log(address);
-    var self = this;
 
-
-    if (config.mode == "local") {
-      this.loadTemplateLocal(config.template);
+    if (process.env.VUE_APP_MODE == "local") {
+      this.loadTemplateLocal(process.env.VUE_APP_TEMPLATE);
     }
     
     
-    if (config.mode == "sandbox") {
-      self.loadTemplate(config.template);
+    if (process.env.VUE_APP_MODE == "sandbox") {
+      this.loadTemplate(process.env.VUE_APP_TEMPLATE);
     }
 
   }
