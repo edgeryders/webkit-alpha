@@ -409,6 +409,13 @@ left: 0px;
       &:last-child {
         @apply mr-0;
       }
+      a {
+        color: #08c;
+        text-decoration: underline;
+        &:hover {
+          color: #0279b5
+        }
+      }
       ul {
       list-style: disc;
       li {
@@ -496,11 +503,14 @@ left: 0px;
       @apply mt-4 mb-8 mx-auto block;
       max-width: 60%;
     }
+    ol {
+      list-style-type: decimal;
+    }
     ul, ol {
     @apply mb-4 inline-block;
       li {
-        @apply border-b py-4 ml-6;
-        width: 90%;
+        @apply border-b pt-3  mb-0 ml-10;
+        width: 70%;
         &:last-child {
           border: none;
         }
@@ -582,6 +592,7 @@ left: 0px;
           margin: 0 auto !important;
           &.highlight {
             width: 100%;
+            display: block;
             margin: 0 auto;
           }
           ul {
