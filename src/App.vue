@@ -398,7 +398,7 @@ export default {
 
         if (blocks[x].nodeName.toLowerCase() == "config") {
           var config = this.parseCode(blocks[x].textContent);
-          if (!config.child) {
+          if (!this.config && !config.child) {
             this.config = config;
             var pages = config.pages;
             var pathname = window.location.pathname.split("/")[1];
@@ -511,28 +511,34 @@ export default {
     },
     loadPage(id, loading, sub){
       this.loading = loading;
-      
-       var ids = this.config.pages.map(section => section.slug.replace(' ', '-').toLowerCase());
 
-      console.log(ids);
-      var parent = this.config.pages.filter(section => {
-        var camelCaseId = section.slug.replace(' ', '-').toLowerCase();
-        console.log(camelCaseId);
-        console.log(id);
-        return camelCaseId === id || section.children && section.children.filter(child => child.slug.replace(' ', '-').toLowerCase() === id);
-      })
+      console.log(this.config.pages);
 
-      console.log(parent);
+      console.log(id);
 
       var active = {
         'parent': null,
         'child': null
       };
 
+
+      var parent = this.config.pages.filter(section => {
+        var parentId = section.slug.replace(' ', '-').toLowerCase();
+        return parentId === id.replace(' ', '-').toLowerCase() || section.children && section.children.filter(child => child.slug.replace(' ', '-').toLowerCase() === id);;
+      });
+
+
+
+
+        
+
+
+   
+
       if (!parent[1]) {
         var child = parent[0]['children'].filter(x => x.slug == id.replace(/\s+/g, '-').toLowerCase())[0];
         active.parent = parent[0].slug;
-        active.child = child.slug;
+        active.child = child && child.slug;
         if (sub) {
           var sub_child = child.children.filter(section => {
             return section.slug.replace(/\s+/g, '-').toLowerCase() === sub.toLowerCase();
@@ -540,8 +546,10 @@ export default {
           this.loadTemplate(sub_child[0].data, true);
           active.parent = child.slug;
           active.child = sub_child[0].slug.replace(/\s+/g, '-').toLowerCase();
-        } else {
+        } else if (sub) {
           this.loadTemplate(child.data, true);
+        } else {
+          this.loadTemplate(parent[0].data, true);
         }
       } else {
         console.log('HI');
@@ -558,6 +566,9 @@ export default {
 
     bus.$on("loadPage", child => {
         this.loadTemplate(child.data);
+        console.log('CHILD');
+        console.log(data)
+
         this.$router.push({ path: '/' + child.slug.replace(/\s+/g, '-').toLowerCase() });
 
         window.scrollTo(0, 0);
@@ -576,7 +587,7 @@ export default {
     });
 
     bus.$on("historyChange", slug => {
-      this.loadPage(slug, false);
+      this.loadPage(slug.replace(' ', '-').toLowerCase(), false);
       window.scrollTo(0, 0);
     });
 
