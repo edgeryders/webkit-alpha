@@ -1,13 +1,16 @@
 <template>
   <div id="app" :class="theme">
-    <multisite
-      v-if="!loading"
+
+ <multisite
+      v-if="blocks && !loading"
       :header="header"
       :config="config"
       :child="childConfig"
       :blocks="blocks"
-      :active="active"
+      :active="active_slugs"
     ></multisite>
+
+
   </div>
 </template>
 
@@ -17,6 +20,7 @@ import { bus } from "@/main";
 
 import template from "./data/template.md";
 import configuration from "./data/config.yaml";
+const _ = require('lodash')
 
 import multisite from "./components/templates/Multisite.vue";
 
@@ -24,9 +28,16 @@ export default {
   name: "App",
   data() {
     return {
+      current: null,
+      current_sub: null,
+      current_child: null,
+      currentText: null,
       tags: null,
       loading: false,
       activeTemplate: "edgeryders",
+      current_config: null,
+      current_slug: null,
+      active_slugs: [],
       template,
       configuration,
       title: null,
@@ -84,7 +95,6 @@ export default {
 
       var html = md.render(view.textContent);
       var text = view.textContent;
-            console.log(html);
 
       var obj = {};
       obj["type"] = name;
@@ -108,7 +118,6 @@ export default {
       }
 
       if (name == "text" && header) {
-        console.log(html);
         obj["text"] = this.parseHeaderText(html);
         obj["links"] = this.parseHeaderLinks(html);
         if (style) {
@@ -258,7 +267,6 @@ export default {
       }
     },
     parseText(text) {
-      console.log(text);
       if (text.includes("---")) {
         var textContent = text.split("---").map(x => this.parseTextContent(x));
         return textContent;
@@ -299,7 +307,6 @@ export default {
       var noTitle = text.replace(titleRegex, "");
       var html = md.render(noTitle);
       var text = html.replace(linksRegex, "").replace(/(\r\n|\n|\r)/gm, "");
-      console.log(text);
       return [text];
     },
     parseHeaderLinks(text) {
@@ -388,27 +395,10 @@ export default {
     unescape(string) {
       return decodeURI(string);
     },
-    parseBlocks(text) {
-      var regex = /&(?!#?[a-z0-9]+;)/gm;
-      var cleant_text = text.replace(regex, "&amp;");
-      var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
-      var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
-      var sections = [];
-      for (var x = 0; x < blocks.length; x++) {
-
-        if (blocks[x].nodeName.toLowerCase() == "config") {
-          var config = this.parseCode(blocks[x].textContent);
-          if (!this.config && !config.child) {
+    parseConfig(block) {
+          var config = this.parseCode(block);
+          if (!this.config) {
             this.config = config;
-            var pages = config.pages;
-            var pathname = window.location.pathname.split("/")[1];
-            var sub = window.location.pathname.split("/")[2];
-             if (pathname) {
-               this.loadPage(pathname, true);
-               if (sub) {
-                this.loadPage(pathname, true, sub);
-               }
-             }
           } 
           if (config.child) {
             this.childConfig = config;
@@ -418,20 +408,17 @@ export default {
           } else {
             this.sendAnalytics("/" + this.pathname);
           }
-          if (this.config.site && this.config.site.theme) {
-            this.loadThemeLocal(this.config.site.theme);
-          } else {
-            this.loadThemeLocal("event");
-          }
-          if (this.config.site && this.config.site.template) {
-            if (this.config.site.template.toLowerCase() == "campaign") {
-              this.activeTemplate = "edgeryders";
-            } else if (this.config.site.template.toLowerCase() == "standard") {
-              this.activeTemplate == "minimal";
-            } else {
-              this.activeTemplate = this.config.site.template.toLowerCase();
-            }
-          }
+      },
+    parseBlocks(text) {
+      console.log(text);
+      var regex = /&(?!#?[a-z0-9]+;)/gm;
+      var cleant_text = text.replace(regex, "&amp;");
+      var xml = new DOMParser().parseFromString(cleant_text, "text/xml");
+      var blocks = xml.getElementsByTagName("Webkit")[0].childNodes;
+      var sections = [];
+      for (var x = 0; x < blocks.length; x++) {
+        if (blocks[x].nodeName.toLowerCase() == "config") {
+          this.parseConfig(blocks[x].textContent)
         }
         if (blocks[x].nodeName.toLowerCase() == "header") {
           var block = this.createBlock(blocks[x]);
@@ -480,18 +467,65 @@ export default {
         return false;
       }
     },
-    loadTemplate(id, loading) {
+    loadTemplate(id) {
       var self = this;
       fetch("https://edgeryders.eu/raw/" + id + ".json")
         .then(response => {
           response.text().then(function(text) {
+            self.getSlugs();
+            if (self.active_slugs.length > 0){
+              self.loading = true;
+              self.parseBlocks(text);
+              self.loadChild();
+            }
+            else {
+              self.parseBlocks(text);
+            }
+          });
+        })
+        .catch(error => console.error(error));
+    },
+    getSlugs() {
+      var slugs = window.location.pathname.split("/").filter(function(e){return e});
+      if (slugs.length > 0) {
+        this.active_slugs = slugs.map(x => x.replace(' ', '-').toLowerCase());
+        this.current_slug = this.active_slugs.slice(-1)[0];
+      }
+    },
+    loadChild(slug) {
+      var self = this;
+      if (slug) { 
+        this.$router.push({ path: '/' + slug.replace(' ', '-').toLowerCase() });
+      }
+     
+      this.getSlugs();
+      
+      this.current_config = this.getConfig(this.config.pages, this.current_slug);
+
+      fetch("https://edgeryders.eu/raw/" + this.current_config.data)
+        .then(response => {
+          response.text().then(function(text) {
             self.parseBlocks(text);
-            if (loading) {
+            if (self.loading) {
               self.loading = false
             }
           });
         })
         .catch(error => console.error(error));
+    },
+    getConfig(array, id){
+        var object;
+
+        array.some(function f(a) {
+            if (a.slug.replace(' ', '-').toLowerCase() === id) {
+                object = a;
+                return true;
+            }
+            if (Array.isArray(a.children)) {
+                return a.children.some(f);
+            }
+        });
+        return object;
     },
     loadTheme() {
       let file = document.createElement("link");
@@ -509,93 +543,16 @@ export default {
       var temp = require("./data/" + template);
       this.parseBlocks(temp.default);
     },
-    loadPage(id, loading, sub){
-      this.loading = loading;
-
-      console.log(this.config.pages);
-
-      console.log(id);
-
-      var active = {
-        'parent': null,
-        'child': null
-      };
-
-
-      var parent = this.config.pages.filter(section => {
-        var parentId = section.slug.replace(' ', '-').toLowerCase();
-        return parentId === id.replace(' ', '-').toLowerCase() || section.children && section.children.filter(child => child.slug.replace(' ', '-').toLowerCase() === id);;
-      });
-
-
-
-
-        
-
-
-   
-
-      if (!parent[1]) {
-        var child = parent[0]['children'].filter(x => x.slug == id.replace(/\s+/g, '-').toLowerCase())[0];
-        active.parent = parent[0].slug;
-        active.child = child && child.slug;
-        if (sub) {
-          var sub_child = child.children.filter(section => {
-            return section.slug.replace(/\s+/g, '-').toLowerCase() === sub.toLowerCase();
-          });
-          this.loadTemplate(sub_child[0].data, true);
-          active.parent = child.slug;
-          active.child = sub_child[0].slug.replace(/\s+/g, '-').toLowerCase();
-        } else if (sub) {
-          this.loadTemplate(child.data, true);
-        } else {
-          this.loadTemplate(parent[0].data, true);
-        }
-      } else {
-        console.log('HI');
-        console.log(parent[1].data);
-        active.parent = parent[1].slug;
-        this.loadTemplate(parent[1].data, true);
-      }
-      
-      this.active = active;
-    
+    loadNewPage(data) {
+      this.loadTemplate(data, true);
     }
   },
   created() {
 
-    bus.$on("loadPage", child => {
-        this.loadTemplate(child.data);
-        console.log('CHILD');
-        console.log(data)
-
-        this.$router.push({ path: '/' + child.slug.replace(/\s+/g, '-').toLowerCase() });
-
+    bus.$on("loadPage", slug => {
+        this.loadChild(slug);
         window.scrollTo(0, 0);
     });
-
-    bus.$on("loadSubPage", obj => {
-       var pathname = window.location.pathname.split("/")[1];
-       if (pathname == obj.parent) {
-         this.$router.push({ path: obj.data.slug.replace(/\s+/g, '-').toLowerCase() });
-       } else {
-         this.$router.replace({ path: obj.parent.replace(/\s+/g, '-').toLowerCase() + '/' + obj.data.slug.replace(/\s+/g, '-').toLowerCase() });
-       }
-       
-         this.loadTemplate(obj.data.data);
-        window.scrollTo(0, 0);
-    });
-
-    bus.$on("historyChange", slug => {
-      this.loadPage(slug.replace(' ', '-').toLowerCase(), false);
-      window.scrollTo(0, 0);
-    });
-
-    var temp = this.template;
-    var config = this.configuration;
-    var self = this;
-    var pathname = window.location.pathname.split("/")[1];
-    var address = window.location.hostname;
 
     if (process.env.VUE_APP_MODE == "local") {
       this.loadTemplateLocal(process.env.VUE_APP_TEMPLATE);
@@ -611,6 +568,22 @@ export default {
 </script>
 
 <style lang="scss">
+
+.test_list {
+  list-style-type: disc;
+  li {
+  span.active {
+  font-weight: bold;
+}
+    @apply pl-4;
+    ul {
+      li {
+@apply pl-4;
+      }
+      
+    }
+  }
+}
 .blank_theme {
   @import "@/assets/blank.scss";
 }
