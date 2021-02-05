@@ -6,15 +6,15 @@
         <span></span>
         <span></span>
       </div>
-    <ul class="desktop_menu">
-      <li v-for="item in items"  :class="{active: item.slug == parent}">
-        <span @click="load(item)">{{ item.slug }}</span>
-        <ul v-if="item.children">
-          <li v-for="child in item.children" :class="{active: child.slug == child}">
-            <span @click="load(child, item.slug)"> {{ child.slug }}</span>
-            <ul v-if="child.children" class="subChildren">
-              <li v-for="subChild in child.children" :class="{active: subChild.slug == child}">
-               <span @click="load(subChild, child.slug, true)">{{subChild.slug}}</span>
+    <ul class="webkit_menu" :class="{active: mobileMenu}">
+      <li v-for="item in items" :class="{active: isActive(item.slug)}">
+        <span @click="load(item.slug)">{{item.slug}}</span>
+        <ul>
+          <li v-for="child in item.children" :class="{active: isActive(child.slug)}">
+            <span @click="load(item.slug + '/' + child.slug)">{{child.slug}}</span>
+            <ul class="subChildren">
+              <li v-for="sub in child.children" :class="{active: isActive(sub.slug)}">
+                <span @click="load(item.slug + '/' + child.slug + '/' + sub.slug)">{{sub.slug}}</span>
               </li>
             </ul>
           </li>
@@ -22,21 +22,6 @@
       </li>
     </ul>
 
-    <ul class="mobile_menu" :class="{active: mobileMenu}">
-      <li v-for="item in items">
-        <span @click="load(item)">{{ item.slug }}</span>
-        <ul v-if="item.children">
-          <li v-for="child in item.children" :class="{active: child.slug == child}">
-            <span @click="load(child, item.slug)"> {{ child.slug }}</span>
-            <ul v-if="child.children" class="subChildren">
-              <li v-for="subChild in child.children" :class="{active: subChild.slug == child}">
-               <span @click="load(subChild, child.slug, true)"> {{subChild.slug}}</span>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
 
   </div>
 </template>
@@ -55,36 +40,20 @@ export default {
     }
   },
   created(){
-    this.parent = this.active.parent;
-    this.child = this.active.child;
   },
   watch: {
-    active: function (val) {
-      this.parent = val.parent;
-      if (val.child) {
-      this.child = val.child;
-      }
-    },
   },
   methods: {
-    load(data, parent, sub) {
+    isActive(slug) {
+      if (this.active.includes(slug.toLowerCase().replace(' ', '-'))) {
+        return true
+      } else {
+        return false
+      }
+    },
+    load(slug) {
       this.mobileMenu = false;
-      if (parent) {
-        this.parent = parent;
-        this.child = data.slug;
-      } else {
-        this.parent = data.slug;
-        this.child = null;
-      }
-      if (sub) {
-        var obj = {
-          'parent': parent,
-          'data': data
-        }
-        bus.$emit("loadSubPage", obj);
-      } else {
-        bus.$emit("loadPage", data);
-      }
+      bus.$emit("loadPage", slug);
     },
     toggleMenu(){
       this.mobileMenu = !this.mobileMenu;
@@ -161,27 +130,9 @@ $open-sans: "Helvetica", sans-serif;
   }
 }
 
-@media only screen and (max-width: 600px) {
-  .links_container {
-    height: auto;
-  }
-  .desktop_menu {
-    display: none !important;
-  }
-  .mobile_menu_icon {
-    display: block !important;
-  }
-}
-// page container
-.links_container {
-  width: auto;
-  height: 100%;
-  display: flex;
-  @apply items-center;
-  margin: 0;
-}
+@media only screen and (min-width: 600px) {
 
-ul.desktop_menu {
+ul.webkit_menu {
   font-size: 0;
   list-style-type: none;
   display: flex;
@@ -189,15 +140,7 @@ ul.desktop_menu {
   height: 100%;
   // initial li
   li {
-    font-family: $open-sans;
-    font-size: 1rem;
-    font-weight: 400;
-    color: #fff;
     height: 100%;
-    padding: 0 1.25rem;
-    text-transform: capitalize;
-    display: inline-flex;
-    align-items: center;
     position: relative;
     border-right: .5px solid rgba(255,255,255,0.1);
     &:first-child {
@@ -205,12 +148,27 @@ ul.desktop_menu {
   }
     span {
     font-weight: bold;
+    width: 100%;
+        text-transform: capitalize;
+    color: #fff;
+    height: 3.7rem !important;
+    @apply flex px-5 items-center;
+    font-family: $open-sans;
+    font-size: 1.05rem;
+    font-weight: 600;
+    height: 100%;
   }
     &.active {
       background-color: rgba(0,0,0,0.3) ;
     color: #fff;
 
     }
+    &:hover {
+    > span {
+      background: rgba(0,0,0,0.8);
+      color: white;
+    }
+  }
     ul {
       display: none;
       box-shadow: 0 10px 10px rgba(0,0,0,0.1);
@@ -237,23 +195,12 @@ ul.desktop_menu {
 
         // secondary li
         li {
-          display: flex;
-          @apply pl-5;
-          position: relative;
-          padding-top: 1.2rem;
-          padding-bottom: 1.2rem;
-          font-size: 16px;
-          align-items: center;
            background-color: rgba(0,0,0,0.5);
            backdrop-filter: blur(10px) !important;
-
-          font-weight: bold;
           border: none;
-          border-bottom: .5px solid rgba(255,255,255,0.1);
           &.active {
           color: #fff;
            background-color: rgba(0,0,0,0.6);
-           border-bottom: .5px solid rgba(255,255,255,0.3);
            }
            
            ul.subChildren {
@@ -265,20 +212,28 @@ ul.desktop_menu {
                position: absolute;
                
                backdrop-filter: blur(10px);
+               li {
+                    &.active {
+                    span{
+                    background-color: rgba(0,0,0,0.3) !important;
+                    }
+                  }
+             }
         
            }
 
           &:hover {
-              background-color: rgba(0,0,0,0.6);
+              background-color: rgba(0,0,0,0.3);
               ul {
                 display: block;
               
                 li {
-                  background-color: rgba(0,0,0,0.9);
+                  background-color: rgba(0,0,0,0.6);
                   backdrop-filter: blur(10px) !important;
                   &:hover {
                     background: black;
                   }
+             
                 }
               }
           }
@@ -289,19 +244,12 @@ ul.desktop_menu {
   }
 }
 
-@keyframes showMenu {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
+@media only screen and (max-width: 600px) {
 
-.mobile_menu {
+
+.webkit_menu {
   position: fixed;
   width: 100vw;
   height: 97vh;
@@ -341,4 +289,36 @@ ul.desktop_menu {
     }
   }
 }
+
+  .links_container {
+    height: auto;
+  }
+
+  .mobile_menu_icon {
+    display: block !important;
+  }
+}
+// page container
+.links_container {
+  width: auto;
+  height: 100%;
+  display: flex;
+  @apply items-center;
+  margin: 0;
+}
+
+
+
+@keyframes showMenu {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
 </style>
